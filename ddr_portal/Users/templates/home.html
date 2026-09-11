@@ -1,0 +1,162 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SKIT DDR Portal</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    body {
+      height: 100vh;
+      background: linear-gradient(135deg, #e6f0fa, #f4f8ff); /* light background like image */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .card {
+      display: flex;
+      width: 900px;
+      height: 500px;
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+      background-color: white;
+    }
+
+    .card .left {
+      flex: 1;
+      background: linear-gradient(135deg, #003973, #005aa7);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 40px;
+      position: relative;
+    }
+
+    .card .left h2 {
+      font-size: 26px;
+      margin-bottom: 15px;
+    }
+
+    .card .left p {
+      font-size: 15px;
+      line-height: 1.6;
+      opacity: 0.95;
+    }
+
+    .card .right {
+      flex: 1;
+      background-color: white;
+      padding: 40px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .card .right img {
+      height: 60px;
+      margin-bottom: 30px;
+    }
+
+    .card .right h1 {
+      font-size: 24px;
+      color: #003973;
+      margin-bottom: 15px;
+      text-align: center;
+    }
+
+    .card .buttons {
+      margin-top: 30px;
+      width: 100%;
+      max-width: 250px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .card .buttons a {
+      text-decoration: none;
+      text-align: center;
+      padding: 12px;
+      border-radius: 25px;
+      font-weight: bold;
+      background-color: #003973;
+      color: white;
+      transition: background 0.3s ease;
+    }
+
+    .card .buttons a:hover {
+      background-color: #005aa7;
+    }
+
+    /* Optional decorative lines like the ref image */
+    .left::before {
+      content: '';
+      position: absolute;
+      top: 30px;
+      left: 30px;
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .left::after {
+      content: '';
+      position: absolute;
+      bottom: 50px;
+      right: 50px;
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    @media (max-width: 768px) {
+      .card {
+        flex-direction: column;
+        height: auto;
+      }
+
+      .card .left,
+      .card .right {
+        padding: 30px;
+        flex: unset;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <!-- Left Half - Colored with short about -->
+    <div class="left">
+      <h2>About SKIT DDR</h2>
+      <p>
+        The SKIT Digital Documentary Responsibility (DDR) Portal is a secure departmental platform to manage academic and administrative documents. It helps faculty, heads, and staff access essential records with a clean and user friendly interface.
+      </p>
+    </div>
+
+    <!-- Right Half - Logo + Welcome + Buttons -->
+    <div class="right">
+      <img src="{% static 'images/skit_logo.jpg' %}" alt="SKIT Logo">
+      <h1>Welcome to SKIT DDR Portal</h1>
+      <div class="buttons">
+<a href="{% url 'login' %}">Login</a>
+<a href="{% url 'signup' %}">Sign Up</a>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
