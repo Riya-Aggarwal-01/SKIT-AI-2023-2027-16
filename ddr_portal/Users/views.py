@@ -6,6 +6,10 @@ from django.db import connection
 
 from .forms import CustomUserCreationForm, CustomLoginForm
 
+
+def home_view(request):
+    return render(request, 'home.html')
+
 def signup_view(request):
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST)
@@ -33,9 +37,6 @@ def login_view(request):
 def logout_view(request):
     logout(request)
     return redirect('login')
-
-
-
 
 def get_user_role(user_id):
     with connection.cursor() as cursor:
