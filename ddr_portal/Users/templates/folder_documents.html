@@ -1,0 +1,206 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Documents in {{ folder.folder_name }}</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f7f9fc;
+    }
+
+    /* Top Bar */
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 30px;
+      background-color: #fff;
+      border-bottom: 1px solid #ddd;
+      height: 70px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    .left-side {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .logo-placeholder {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background-color: #eee;
+    }
+
+    .logo-placeholder img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .search-box input {
+      padding: 10px 16px;
+      border-radius: 20px;
+      border: 1px solid #ccc;
+      outline: none;
+      width: 320px;
+      font-size: 14px;
+    }
+
+    .right-side {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      margin-right: 40px;
+    }
+
+    .right-side i {
+      font-size: 22px;
+      color: #333;
+      cursor: pointer;
+    }
+
+    /* Breadcrumbs */
+    .breadcrumbs {
+      padding: 20px 30px 0;
+      font-size: 14px;
+      color: #666;
+    }
+
+    .breadcrumbs a {
+      text-decoration: none;
+      color: #003973;
+      margin-right: 5px;
+    }
+
+    .breadcrumbs a:hover {
+      text-decoration: underline;
+    }
+
+    /* Section Styling */
+    .folder-section {
+      background-color: #fff;
+      margin: 30px 300px 40px 300px;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    }
+
+    .folder-section h2 {
+      font-size: 18px;
+      margin-bottom: 20px;
+      color: #003973;
+    }
+
+    .document, .subfolder {
+      background-color: #f0f4ff;
+      padding: 14px;
+      border-radius: 8px;
+      margin-bottom: 12px;
+      font-size: 16px;
+      color: #333;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .document:hover, .subfolder:hover {
+      background-color: #d9e8ff;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .section-title {
+      margin-top: 20px;
+      margin-bottom: 10px;
+      font-weight: bold;
+      color: #003973;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div class="left-side">
+      <div class="logo-placeholder">
+        <img src="{% static 'images/skit_logo.jpg' %}" alt="Logo">
+      </div>
+      <div class="search-box">
+        <input type="text" id="documentSearch" placeholder="Search documents or folders..." onkeyup="filterItems()">
+      </div>
+    </div>
+
+    <div class="right-side">
+      <i class="bi bi-house-door" onclick="location.href='{% url 'role_redirect' %}'"></i>
+      <i class="bi bi-person-circle" onclick="location.href='{% url 'profile' %}'"></i>
+    </div>
+  </div>
+
+  <!-- Breadcrumbs -->
+  <div class="breadcrumbs">
+    <a href="{% url 'role_redirect' %}">Dashboard</a> >
+    <a href="{% url 'edit_list'  %}">Folders</a> >
+    <span>{{ folder.folder_name }}</span>
+  </div>
+
+  <!-- Main Content -->
+  <div class="folder-section">
+
+    {% if subfolders %}
+      <div class="section-title">Subfolders</div>
+      <div id="subfolderContainer">
+        {% for subfolder in subfolders %}
+          <a class="subfolder" data-title="{{ subfolder.folder_name|lower }}" href="{% url 'folder_edit_documents' subfolder.id %}">
+            📁 {{ subfolder.folder_name }}
+          </a>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    {% if documents %}
+      <div class="section-title">Documents</div>
+      <div id="documentContainer">
+        {% for document in documents %}
+          <a class="document" data-title="{{ document.title|lower }}" href="{% url 'edit_dynamic_table' document.id %}">
+            📄 {{ document.title }}
+          </a>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="document">No documents in this folder.</div>
+    {% endif %}
+
+    <a class="back" href="{% url 'upload_folder_list' %}">← Back to Folder List</a>
+  </div>
+
+  <!-- Search Filter Script -->
+  <script>
+    function filterItems() {
+      const input = document.getElementById('documentSearch');
+      const filter = input.value.toLowerCase();
+
+      // Filter documents
+      const documents = document.querySelectorAll('#documentContainer .document');
+      documents.forEach(doc => {
+        const title = doc.getAttribute('data-title');
+        doc.style.display = title.includes(filter) ? '' : 'none';
+      });
+
+      // Filter subfolders
+      const subfolders = document.querySelectorAll('#subfolderContainer .subfolder');
+      subfolders.forEach(folder => {
+        const title = folder.getAttribute('data-title');
+        folder.style.display = title.includes(filter) ? '' : 'none';
+      });
+    }
+  </script>
+
+</body>
+</html>
