@@ -1,8 +1,11 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect , get_object_or_404
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseForbidden
 from django.db import connection
+from .models import (
+    Folder, Document
+)
 
 from .forms import CustomUserCreationForm, CustomLoginForm
 
@@ -84,3 +87,14 @@ def role_redirect(request):
             return redirect('faculty')
 
     return redirect('login')
+
+# -----------------------------
+# Folder and document views
+# -----------------------------
+
+@login_required
+def folder_list(request):
+    # Only root folders (parent is NULL)
+    folders = Folder.objects.filter(is_active=True, parent__isnull=True)
+    return render(request, 'folder_list.html', {'folders': folders})
+
