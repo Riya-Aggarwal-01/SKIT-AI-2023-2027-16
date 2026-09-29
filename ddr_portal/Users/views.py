@@ -98,3 +98,25 @@ def folder_list(request):
     folders = Folder.objects.filter(is_active=True, parent__isnull=True)
     return render(request, 'folder_list.html', {'folders': folders})
 
+@login_required
+def folder_documents(request, folder_id):
+    folder = get_object_or_404(Folder, id=folder_id, is_active=True)
+
+    # Documents inside this folder
+    documents = Document.objects.filter(
+        folder=folder,
+        is_deleted=False,
+        folder__is_active=True
+    )
+
+    # Subfolders inside this folder
+    subfolders = Folder.objects.filter(
+        parent=folder,
+        is_active=True
+    )
+
+    return render(request, 'documents.html', {
+        'folder': folder,
+        'documents': documents,
+        'subfolders': subfolders
+    })
