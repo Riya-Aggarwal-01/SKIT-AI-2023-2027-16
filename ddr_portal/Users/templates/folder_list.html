@@ -1,0 +1,175 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Available Folders</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f7f9fc;
+    }
+
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 30px;
+      background-color: #fff;
+      border-bottom: 1px solid #ddd;
+      height: 70px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    .left-side {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .logo-placeholder {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background-color: #eee;
+    }
+
+    .logo-placeholder img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .search-box input {
+      padding: 10px 16px;
+      border-radius: 20px;
+      border: 1px solid #ccc;
+      outline: none;
+      width: 320px;
+      font-size: 14px;
+    }
+
+    .right-side {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      margin-right: 40px;
+    }
+
+    .right-side i {
+      font-size: 22px;
+      color: #333;
+      cursor: pointer;
+    }
+
+    .breadcrumbs {
+      padding: 20px 30px 0;
+      font-size: 14px;
+      color: #666;
+    }
+
+    .breadcrumbs a {
+      text-decoration: none;
+      color: #003973;
+      margin-right: 5px;
+    }
+
+    .breadcrumbs a:hover {
+      text-decoration: underline;
+    }
+
+    .folder-section {
+      background-color: #fff;
+      margin: 30px 300px 40px 300px;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    }
+
+    .folder-section h2 {
+      font-size: 18px;
+      margin-bottom: 20px;
+      color: #003973;
+    }
+
+    .folder {
+      background-color: #f0f4ff;
+      padding: 14px;
+      border-radius: 8px;
+      margin-bottom: 12px;
+      font-size: 16px;
+      color: #333;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .folder:hover {
+      background-color: #d9e8ff;
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="top-bar">
+    <div class="left-side">
+      <div class="logo-placeholder">
+        <img src="{% static 'images/skit_logo.jpg' %}" alt="SKIT Logo">
+      </div>
+      <div class="search-box">
+        <input type="text" id="folderSearch" placeholder="Search folders..." onkeyup="filterFolders()">
+      </div>
+    </div>
+
+    <div class="right-side">
+      <i class="bi bi-house-door" onclick="location.href='{% url 'role_redirect' %}'"></i>
+       <i class="bi bi-person-circle" onclick="location.href='{% url 'profile' %}'"></i>
+    </div>
+  </div>
+
+  <div class="breadcrumbs">
+    <a href="{% url 'role_redirect' %}">Dashboard</a> >
+    <span>Folders</span>
+  </div>
+
+  <div class="folder-section">
+    <h2>Available Folders</h2>
+
+    {% if folders %}
+      <div id="folderContainer">
+        {% for folder in folders %}
+          <div class="folder" data-folder-name="{{ folder.folder_name|lower }}" onclick="location.href='{% url 'folder_documents' folder.id %}'">
+            📁 {{ folder.folder_name }}
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="folder">No folders available.</div>
+    {% endif %}
+  </div>
+
+  <script>
+    function filterFolders() {
+      const input = document.getElementById('folderSearch');
+      const filter = input.value.toLowerCase();
+      const folderContainer = document.getElementById('folderContainer');
+      const folders = folderContainer.getElementsByClassName('folder');
+
+      for (let i = 0; i < folders.length; i++) {
+        const folderName = folders[i].getAttribute('data-folder-name');
+        if (folderName.includes(filter)) {
+          folders[i].classList.remove('hidden');
+        } else {
+          folders[i].classList.add('hidden');
+        }
+      }
+    }
+  </script>
+
+</body>
+</html>
