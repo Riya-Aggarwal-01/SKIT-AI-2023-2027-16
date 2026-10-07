@@ -1046,3 +1046,753 @@ VALUES (
     }
   }'
 ),
+
+    (
+  'Master_table_of_External_project_proposal',
+  'In this folder, detailed information related to accepted research projects as well as consultancy projects of the students of Computer Science and Engineering Department will be shared.',
+  32,
+  '{
+    "Master_table_of_External_project_proposal": {
+      "columns": [
+        { "name": "DETAIL ID", "type": "INT", "constraints": "PRIMARY KEY IDENTITY(1,1)" },
+        { "name": "PROJECT ID", "type": "INT", "constraints": "NOT NULL, FOREIGN KEY REFERENCES NAAC_External_Project_Proposal(PROJECT_ID)" },
+        { "name": "PROJECT NAME", "type": "VARCHAR(255)", "constraints": "NOT NULL" },
+        { "name": "NAME OF SUMIT", "type": "VARCHAR(150)", "constraints": "NOT NULL" },
+        { "name": "ROLE", "type": "VARCHAR(10)", "constraints": "NOT NULL" },
+        { "name": "EXTERNAL PI NAME AFFILIATION", "type": "VARCHAR(255)" },
+        { "name": "COLLABORATING INSTITUTIONS", "type": "TEXT" },
+        { "name": "FUNDING AGENCY", "type": "VARCHAR(150)", "constraints": "NOT NULL" },
+        { "name": "FUNDING TYPE", "type": "VARCHAR(20)", "constraints": "NOT NULL" },
+        { "name": "CATEGORY", "type": "VARCHAR(50)", "constraints": "NOT NULL" },
+        { "name": "DURATION MONTHS", "type": "INT", "constraints": "NOT NULL" },
+        { "name": "START DATE", "type": "DATE", "constraints": "NOT NULL" },
+        { "name": "END DATE", "type": "DATE", "constraints": "NOT NULL" },
+        { "name": "AMOUNT INR", "type": "DECIMAL(15,2)", "constraints": "NOT NULL" },
+        { "name": "STATUS", "type": "VARCHAR(20)", "constraints": "NOT NULL" }
+      ]
+    }
+  }'
+),
+
+   (
+  'NAAC_Student_Internship',
+  'In this folder, we will manage final year student project list, Mentor approval letters, various sample like Abstract, form-1, form-2, form-3, SRS, PPT, Project Report, Demo Video etc.',
+  32,
+  '{
+    "NAAC_Student_Internship": {
+      "columns": [
+        { "name": "INTERNSHIP ID", "type": "INT", "constraints": "PRIMARY KEY IDENTITY(1,1)" },
+        { "name": "PROGRAM NAME", "type": "VARCHAR(150)", "constraints": "NOT NULL" },
+        { "name": "PROGRAM CODE", "type": "VARCHAR(50)" },
+        { "name": "ROLL NUMBER", "type": "VARCHAR(50)", "constraints": "NOT NULL UNIQUE" },
+        { "name": "STUDENT NAME", "type": "VARCHAR(150)", "constraints": "NOT NULL" },
+        { "name": "FIRM NAME ADDRESS", "type": "TEXT", "constraints": "NOT NULL" },
+        { "name": "START DATE", "type": "DATE", "constraints": "NOT NULL" },
+        { "name": "END DATE", "type": "DATE", "constraints": "NOT NULL" },
+        { "name": "GOOGLE DRIVE LINK", "type": "TEXT" }
+      ]
+    }
+  }'
+),
+
+    (
+  'Master_Table_of_Student_Internship',
+  'In this folder, we will manage final year student project list, Mentor approval letters, various sample like Abstract, form-1, form-2, form-3, SRS, PPT, Project Report, Demo Video etc.',
+  32,
+  '{
+      "Master Table of Student Internship": {
+          "columns": [
+              { "name": "SNO", "type": "INT", "constraints": "PRIMARY KEY IDENTITY(1,1)" },
+              { "name": "ROLL NUMBER", "type": "VARCHAR(50)", "constraints": "NOT NULL, FOREIGN KEY REFERENCES NAAC_Student_Internship(ROLL_NUMBER)" },
+              { "name": "STUDENT NAME", "type": "VARCHAR(100)" },
+              { "name": "PROJECT TITLE", "type": "VARCHAR(200)" },
+              { "name": "PROJECT MENTOR", "type": "VARCHAR(100)" }
+          ]
+      }
+  }'
+),
+
+   (
+  'UG_Higher_Studies',
+  'NULL',
+  22,
+  '{
+      "UG Higher Studies": {
+          "columns": [
+              { "name": "ID", "type": "INT", "constraints": "AUTO_INCREMENT PRIMARY KEY" },
+              { "name": "Dept", "type": "VARCHAR(200)", "constraints": "NOT NULL" },
+              { "name": "Session", "type": "VARCHAR(200)", "constraints": "NOT NULL" },
+              { "name": "No of Students", "type": "INT", "constraints": "NOT NULL" }
+          ]
+      }
+  }'
+),
+
+  (
+  'PG_Higher_Studies',
+  'NULL',
+  22,
+  '{
+      "PG Higher Studies": {
+          "columns": [
+              { "name": "ID", "type": "INT", "constraints": "AUTO_INCREMENT PRIMARY KEY" },
+              { "name": "Dept", "type": "VARCHAR(200)", "constraints": "NOT NULL" },
+              { "name": "Session", "type": "VARCHAR(200)", "constraints": "NOT NULL" },
+              { "name": "No of Students", "type": "INT", "constraints": "NOT NULL" }
+          ]
+      }
+  }'
+),
+
+   (
+  'Patents',
+  'NULL',
+  22,
+  '{
+      "Patents": {
+          "columns": [
+              { "name": "ID", "type": "INT", "constraints": "AUTO_INCREMENT PRIMARY KEY" },
+              { "name": "Deptartment", "type": "VARCHAR(100)", "constraints": "NOT NULL" },
+              { "name": "Calendar Year", "type": "YEAR", "constraints": "NOT NULL" },
+              { "name": "Number of Published", "type": "INT", "constraints": "NOT NULL" },
+              { "name": "Number of Granted", "type": "INT", "constraints": "NOT NULL" }
+          ]
+      }
+  }'
+),
+
+   (
+  'Sponsored Research Detail',
+  'NULL',
+  22,
+  '{
+      "Sponsored Research Detail": {
+          "columns": [
+              { "name": "ID", "type": "INT", "constraints": "AUTO_INCREMENT PRIMARY KEY" },
+              { "name": "Dept", "type": "VARCHAR(100)", "constraints": "NOT NULL" },
+              { "name": "Financial Year", "type": "VARCHAR(9)", "constraints": "NOT NULL" },
+              { "name": "Number of Projects", "type": "INT", "constraints": "NOT NULL" },
+              { "name": "Number of Funding Agencies", "type": "INT", "constraints": "NOT NULL" },
+              { "name": "Amount Received Rs", "type": "DECIMAL(15,2)", "constraints": "NOT NULL" },
+              { "name": "Amount in Words", "type": "VARCHAR(255)", "constraints": "NOT NULL" }
+          ]
+      }
+  }'
+),
+
+   (
+  'Consultancy Projects Details',
+  'NULL',
+  22,
+  '{
+      "Consultancy Projects Details": {
+          "columns": [
+              { "name": "ID", "type": "INT", "constraints": "AUTO_INCREMENT PRIMARY KEY" },
+              { "name": "Dept", "type": "VARCHAR(100)", "constraints": "NOT NULL" },
+              { "name": "Financial Year", "type": "VARCHAR(9)", "constraints": "NOT NULL" },
+              { "name": "Number of Projects", "type": "INT", "constraints": "NOT NULL" },
+              { "name": "Number of Client Originations", "type": "INT", "constraints": "NOT NULL" },
+              { "name": "Amount Received Rs", "type": "DECIMAL(15,2)", "constraints": "NOT NULL" },
+              { "name": "Amount in Words", "type": "VARCHAR(255)", "constraints": "NOT NULL" }
+          ]
+      }
+  }'
+),
+
+   (
+  'ERP Total Student Strength',
+  'NULL',
+  22,
+  '{
+      "ERP Total Student Strength": {
+          "columns": [
+              { "name": "ID", "type": "INT", "constraints": "AUTO_INCREMENT PRIMARY KEY" },
+              { "name": "Program", "type": "VARCHAR(255)", "constraints": "NOT NULL" },
+              { "name": "Male Students", "type": "INT", "constraints": "NOT NULL" },
+              { "name": "Female Students", "type": "INT", "constraints": "NOT NULL" },
+              { "name": "Total Students", "type": "INT", "constraints": "NOT NULL" },
+              { "name": "Within State", "type": "INT", "constraints": "NOT NULL" },
+              { "name": "Outside State", "type": "INT", "constraints": "NOT NULL" },
+              { "name": "Outside Country", "type": "INT", "constraints": "NOT NULL" },
+              { "name": "Economically Backward", "type": "INT", "constraints": "NOT NULL" },
+              { "name": "Socially Challenged", "type": "INT", "constraints": "NOT NULL" }
+          ]
+      }
+  }'
+),
+
+    (
+  'ERP PhD Student Strength Doctoral Program',
+  'NULL',
+  22,
+  '{
+      "ERP PhD Student Strength Doctoral Program": {
+          "columns": [
+              { "name": "ID", "type": "INT", "constraints": "AUTO_INCREMENT PRIMARY KEY" },
+              { "name": "Program Year", "type": "VARCHAR(20)", "constraints": "NOT NULL" },
+              { "name": "Full Time Students", "type": "INT", "constraints": "NOT NULL" },
+              { "name": "Part Time Students", "type": "INT", "constraints": "NOT NULL" },
+              { "name": "Total Students", "type": "INT", "constraints": "NOT NULL" }
+          ]
+      }
+  }'
+),
+
+   (
+  'PhD Student Strength',
+  'NULL',
+  22,
+  '{
+      "PhD Student Strength": {
+          "columns": [
+              { "name": "ID", "type": "INT", "constraints": "AUTO_INCREMENT PRIMARY KEY" },
+              { "name": "Program Year", "type": "VARCHAR(20)", "constraints": "NOT NULL" },
+              { "name": "Full Time Students", "type": "INT", "constraints": "NOT NULL" },
+              { "name": "Part Time Students", "type": "INT", "constraints": "NOT NULL" }
+          ]
+      }
+  }'
+),
+(
+    'Placement UG 4 Year Program',
+    'NULL',
+    21,
+    '{
+        "Placement UG 4 Year Program": {
+            "columns": [
+                { "name": "Academic Year Intake", "type": "VARCHAR(9)", "constraints": "" },
+                { "name": "First Year Intake", "type": "INT", "constraints": "" },
+                { "name": "First Year Admitted", "type": "INT", "constraints": "" },
+
+                { "name": "Academic Year Lateral Entry", "type": "VARCHAR(9)", "constraints": "" },
+                { "name": "Lateral Entry Admitted", "type": "INT", "constraints": "" },
+
+                { "name": "Academic Year Graduated", "type": "VARCHAR(9)", "constraints": "" },
+                { "name": "Graduated In Time", "type": "INT", "constraints": "" },
+
+                { "name": "Students Placed", "type": "INT", "constraints": "" },
+                { "name": "Median Salary Rs", "type": "DECIMAL(12,2)", "constraints": "" },
+                { "name": "Median Salary Words", "type": "VARCHAR(100)", "constraints": "" },
+                { "name": "Higher Studies Count", "type": "INT", "constraints": "" }
+            ]
+        }
+    }'
+),
+
+  (
+    'PG 2 Year Program',
+    'NULL',
+    21,
+    '{
+        "PG 2 Year Program": {
+            "columns": [
+                { "name": "Academic Year", "type": "VARCHAR(9)", "constraints": "" },
+                { "name": "First Year Intake", "type": "INT", "constraints": "" },
+                { "name": "First Year Admitted", "type": "INT", "constraints": "" },
+
+                { "name": "Academic Year Graduated", "type": "VARCHAR(9)", "constraints": "" },
+                { "name": "Graduated In Time", "type": "INT", "constraints": "" },
+
+                { "name": "Students Placed", "type": "INT", "constraints": "" },
+                { "name": "Median Salary Rs", "type": "DECIMAL(12,2)", "constraints": "" },
+                { "name": "Median Salary Words", "type": "VARCHAR(100)", "constraints": "" },
+                { "name": "Higher Studies Count", "type": "INT", "constraints": "" }
+            ]
+        }
+    }'
+),
+
+   (
+    'Oracle nimish',
+    'In this folder, we will manage Memorandum of understanding (MoU) with Oracle.',
+    22,
+    '{
+        "Oracle nimish": {
+            "columns": [
+                { "name": "Organisation MoU Signed With", "type": "VARCHAR(255)", "constraints": "" },
+                { "name": "Institution Or Industry Name", "type": "VARCHAR(255)", "constraints": "" },
+                { "name": "MoU Signing Year", "type": "DATE", "constraints": "" },
+                { "name": "MoU Duration", "type": "VARCHAR(100)", "constraints": "" },
+                { "name": "MoU Activities Yearwise", "type": "TEXT", "constraints": "" },
+                { "name": "Participants Count", "type": "INT", "constraints": "" }
+            ]
+        }
+    }'
+),
+
+  (
+  'Average Placement of Student',
+  'In this folder, we will manage : Average Placement of Students',
+  23,
+  '{
+      "Average Placement of Student": {
+          "columns": [
+              { "name": "Year", "type": "VARCHAR(10)", "constraints": "PRIMARY KEY (Year, Category)" },
+              { "name": "Category", "type": "VARCHAR(50)", "constraints": "" },
+              { "name": "Count", "type": "INT", "constraints": "" }
+          ]
+      }
+  }'
+),
+
+   (
+  'Placement Data',
+  'In this folder, we will manage : Placement Data',
+  23,
+  '{
+      "Placement Data": {
+          "columns": [
+              { "name": "S No", "type": "INT", "constraints": "PRIMARY KEY" },
+              { "name": "Roll No", "type": "VARCHAR(20)", "constraints": "" },
+              { "name": "Student Name", "type": "VARCHAR(100)", "constraints": "" },
+              { "name": "Email", "type": "VARCHAR(100)", "constraints": "" },
+              { "name": "Contact No", "type": "VARCHAR(20)", "constraints": "" },
+              { "name": "Company Name", "type": "VARCHAR(100)", "constraints": "" },
+              { "name": "Selection", "type": "VARCHAR(50)", "constraints": "" },
+              { "name": "Package LPA", "type": "DECIMAL(5,2)", "constraints": "" },
+              { "name": "Date", "type": "DATE", "constraints": "" },
+              { "name": "Venue", "type": "VARCHAR(100)", "constraints": "" }
+          ]
+      }
+  }'
+),
+
+   (
+  'NAAC Journal Publication',
+  'In this folder, we will manage faculties and students conference, journal, book, book chapter, patent, publications.',
+  24,
+  '{
+      "NAAC Journal Publication": {
+          "columns": [
+              { "name": "Title of paper", "type": "VARCHAR(500)", "constraints": "NOT NULL" },
+              { "name": "Name of the author/s", "type": "VARCHAR(300)", "constraints": "NOT NULL" },
+              { "name": "Department of the teacher", "type": "VARCHAR(150)", "constraints": "NOT NULL" },
+              { "name": "Name of journal", "type": "VARCHAR(255)", "constraints": "NOT NULL" },
+              { "name": "Year of publication", "type": "INT", "constraints": "NOT NULL" },
+              { "name": "ISSN number", "type": "VARCHAR(50)", "constraints": "" },
+              { "name": "Link to the recognition in UGC enlistment of the Journal /Digital Object Identifier (doi) number", "type": "TEXT", "constraints": "" },
+              { "name": "Link to website of the Journal", "type": "TEXT", "constraints": "" },
+              { "name": "Link to article/paper/abstract of the article", "type": "TEXT", "constraints": "" },
+              { "name": "Is it listed in UGC Care list/Scopus/Web of Science/other, mention", "type": "VARCHAR(100)", "constraints": "" }
+          ]
+      }
+  }'
+),
+
+    (
+  'Qiv Journal Publication',
+  'In this folder, we will manage faculties and students conference, journal, book, book chapter, patent, publications.',
+  24,
+  '{
+      "Qiv Journal Publication": {
+          "columns": [
+              { "name": "S.No.", "type": "INT", "constraints": "PRIMARY KEY" },
+              { "name": "Department", "type": "VARCHAR(150)", "constraints": "NOT NULL" },
+              { "name": "Contributing faculty members from concerned department", "type": "VARCHAR(300)", "constraints": "NOT NULL" },
+              { "name": "Title of the Paper", "type": "VARCHAR(500)", "constraints": "NOT NULL" },
+              { "name": "International/National Level", "type": "VARCHAR(50)", "constraints": "" },
+              { "name": "Publishers Name", "type": "VARCHAR(200)", "constraints": "" },
+              { "name": "Journals Name", "type": "VARCHAR(300)", "constraints": "" },
+              { "name": "Indexing (SCI/ SCIE/ Scopus)", "type": "VARCHAR(100)", "constraints": "" },
+              { "name": "ISSN No.", "type": "VARCHAR(50)", "constraints": "" },
+              { "name": "ISBN No.", "type": "VARCHAR(50)", "constraints": "" },
+              { "name": "Volume", "type": "VARCHAR(50)", "constraints": "" },
+              { "name": "Issue", "type": "VARCHAR(50)", "constraints": "" },
+              { "name": "Year", "type": "INT", "constraints": "" },
+              { "name": "Article Id/ Page No.", "type": "VARCHAR(100)", "constraints": "" },
+              { "name": "Date of Publication", "type": "DATE", "constraints": "" },
+              { "name": "Is co-authored by faculty members from different departments of parent Institute (Yes/ No)", "type": "VARCHAR(10)", "constraints": "" },
+              { "name": "Proof Enclosed (Yes/ No)", "type": "VARCHAR(10)", "constraints": "" }
+          ]
+      }
+  }'
+),
+
+   (
+  'NBA Journal Publication',
+  'In this folder, we will manage faculties and students conference, journal, book, book chapter, patent, publications.',
+  24,
+  '{
+      "NBA Journal Publication": {
+          "columns": [
+              { "name": "Title of paper", "type": "VARCHAR(500)", "constraints": "NOT NULL" },
+              { "name": "Name of the author/s", "type": "VARCHAR(300)", "constraints": "NOT NULL" },
+              { "name": "Department of the teacher", "type": "VARCHAR(150)", "constraints": "NOT NULL" },
+              { "name": "Name of journal", "type": "VARCHAR(300)", "constraints": "NOT NULL" },
+              { "name": "Year of publication", "type": "INT", "constraints": "NOT NULL" },
+              { "name": "ISSN number", "type": "VARCHAR(50)", "constraints": "" },
+              { "name": "Link to the recognition in UGC enlistment of the Journal /Digital Object Identifier (doi) number", "type": "VARCHAR(500)", "constraints": "" },
+              { "name": "Link to website of the Journal", "type": "VARCHAR(500)", "constraints": "" },
+              { "name": "Link to article/paper/abstract of the article", "type": "VARCHAR(500)", "constraints": "" },
+              { "name": "Is it listed in UGC Care list/Scopus/Web of Science/other, mention", "type": "VARCHAR(150)", "constraints": "" }
+          ]
+      }
+  }'
+),
+
+  (
+  'Master Journal Publications',
+  'In this folder, we will manage faculties and students conference, journal, book, book chapter, patent, publications.',
+  24,
+  '{
+      "Master Journal Publications": {
+          "columns": [
+              { "name": "Name of Faculty", "type": "VARCHAR(150)", "constraints": "NOT NULL" },
+              { "name": "Department", "type": "VARCHAR(150)", "constraints": "NOT NULL" },
+              { "name": "Title of Paper", "type": "VARCHAR(500)", "constraints": "NOT NULL" },
+              { "name": "Role(Author/Editor/Other)", "type": "VARCHAR(50)", "constraints": "" },
+              { "name": "List of Authors /Editors(as per the paper sequence)", "type": "TEXT", "constraints": "" },
+              { "name": "Name of journal", "type": "VARCHAR(300)", "constraints": "" },
+              { "name": "Publishers Name", "type": "VARCHAR(200)", "constraints": "" },
+              { "name": "Volume, Issue", "type": "VARCHAR(100)", "constraints": "" },
+              { "name": "Article Id/ Page No.", "type": "VARCHAR(100)", "constraints": "" },
+              { "name": "Date of Publication", "type": "DATE", "constraints": "" },
+              { "name": "ISSN Number", "type": "VARCHAR(50)", "constraints": "" },
+              { "name": "ISBN Number", "type": "VARCHAR(50)", "constraints": "" },
+              { "name": "DOI", "type": "VARCHAR(200)", "constraints": "" },
+              { "name": "Status", "type": "VARCHAR(50)", "constraints": "" },
+              { "name": "Indexing (SCI/ SCIE/ Scopus)", "type": "VARCHAR(100)", "constraints": "" },
+              { "name": "Link to website of the Journal", "type": "VARCHAR(500)", "constraints": "" },
+              { "name": "Link to article/paper/abstract of the article", "type": "VARCHAR(500)", "constraints": "" },
+              { "name": "Attach the Paper", "type": "VARCHAR(500)", "constraints": "" }
+          ]
+      }
+  }'
+),
+
+    (
+  'NAAC Faculty Participation',
+  'In this folder, we will manage faculties participation Professional Development programs like FDPs/ Workshops/Seminars/STTPs/Orientation/Induction/Refresher course/training program and conferences.',
+  24,
+  '{
+      "NAAC Faculty Participation": {
+          "columns": [
+              { "name": "S.No.", "type": "INT", "constraints": "PRIMARY KEY" },
+              { "name": "Emp ID", "type": "VARCHAR(50)", "constraints": "" },
+              { "name": "Department", "type": "VARCHAR(150)", "constraints": "" },
+              { "name": "Name of faculty member", "type": "VARCHAR(150)", "constraints": "" },
+              { "name": "Title of Program", "type": "VARCHAR(300)", "constraints": "" },
+              { "name": "Conference/FDPs/Workshop/Semnar/STTP", "type": "VARCHAR(100)", "constraints": "" },
+              { "name": "Mode(Online/Offline)", "type": "VARCHAR(50)", "constraints": "" },
+              { "name": "Level(National/International)", "type": "VARCHAR(50)", "constraints": "" },
+              { "name": "Organizer", "type": "VARCHAR(255)", "constraints": "" },
+              { "name": "Sponsored by", "type": "VARCHAR(255)", "constraints": "" },
+              { "name": "Duration", "type": "VARCHAR(100)", "constraints": "" },
+              { "name": "Session", "type": "VARCHAR(50)", "constraints": "" },
+              { "name": "No.of Days", "type": "INT", "constraints": "" },
+              { "name": "Proof Enclosed", "type": "VARCHAR(10)", "constraints": "" }
+          ]
+      }
+  }'
+),
+
+  (
+  'QIV Faculty Participation',
+  'In this folder, we will manage faculties participation Professional Development programs like FDPs/ Workshops/Seminars/STTPs/Orientation/Induction/Refresher course/training program and conferences.',
+  24,
+  '{
+      "QIV Faculty Participation": {
+          "columns": [
+              { "name": "S.No.", "type": "INT", "constraints": "PRIMARY KEY" },
+              { "name": "Name of the Faculty", "type": "VARCHAR(150)", "constraints": "" },
+              { "name": "Department", "type": "VARCHAR(150)", "constraints": "" },
+              { "name": "Title of Event/Program", "type": "VARCHAR(300)", "constraints": "" },
+              { "name": "Type Conference/Workshop/Seminar/STTP", "type": "VARCHAR(100)", "constraints": "" },
+              { "name": "International/National Level", "type": "VARCHAR(50)", "constraints": "" },
+              { "name": "Organizer", "type": "VARCHAR(255)", "constraints": "" },
+              { "name": "Duration From| To", "type": "VARCHAR(100)", "constraints": "" },
+              { "name": "Proof Enclosed (Yes/ No)", "type": "VARCHAR(10)", "constraints": "" }
+          ]
+      }
+  }'
+),
+(
+  'NBA Faculty Participation',
+  'In this folder, we will manage faculties participation Professional Development programs like FDPs/ Workshops/Seminars/STTPs/Orientation/Induction/Refresher course/training program and conferences.',
+  24,
+  '{
+      "NBA Faculty Participation": {
+          "columns": [
+              { "name": "S.No.", "type": "INT", "constraints": "" },
+              { "name": "Emp ID", "type": "VARCHAR(50)", "constraints": "" },
+              { "name": "Department", "type": "VARCHAR(150)", "constraints": "" },
+              { "name": "Name of faculty member", "type": "VARCHAR(150)", "constraints": "" },
+              { "name": "Title of Program", "type": "VARCHAR(300)", "constraints": "" },
+              { "name": "Conference/FDPs/Workshop/Semnar/STTP", "type": "VARCHAR(100)", "constraints": "" },
+              { "name": "Mode(Online/Offline)", "type": "VARCHAR(20)", "constraints": "" },
+              { "name": "Level(National/International)", "type": "VARCHAR(50)", "constraints": "" },
+              { "name": "Organizer", "type": "VARCHAR(255)", "constraints": "" },
+              { "name": "Grant Received from SKIT (YES/NO)", "type": "VARCHAR(5)", "constraints": "" },
+              { "name": "Duration", "type": "VARCHAR(100)", "constraints": "" },
+              { "name": "Session", "type": "VARCHAR(50)", "constraints": "" },
+              { "name": "No.of Days", "type": "INT", "constraints": "" },
+              { "name": "Proof Enclosed", "type": "VARCHAR(10)", "constraints": "" }
+          ]
+      }
+  }'
+),
+(
+  'Master Faculty Participation',
+  'In this folder, we will manage faculties participation Professional Development programs like FDPs/ Workshops/Seminars/STTPs/Orientation/Induction/Refresher course/training program and conferences.',
+  24,
+  '{
+      "Master Faculty Participation": {
+          "columns": [
+              { "name": "S.No.", "type": "INT", "constraints": "" },
+              { "name": "Emp ID", "type": "VARCHAR(50)", "constraints": "" },
+              { "name": "Department", "type": "VARCHAR(150)", "constraints": "" },
+              { "name": "Name of faculty member", "type": "VARCHAR(150)", "constraints": "" },
+              { "name": "Title of Program", "type": "VARCHAR(300)", "constraints": "" },
+              { "name": "Conference/FDPs/Workshop/Semnar/STTP", "type": "VARCHAR(100)", "constraints": "" },
+              { "name": "Mode(Online/Offline)", "type": "VARCHAR(20)", "constraints": "" },
+              { "name": "Level(National/International)", "type": "VARCHAR(50)", "constraints": "" },
+              { "name": "Organizer", "type": "VARCHAR(255)", "constraints": "" },
+              { "name": "Sponsored by", "type": "VARCHAR(255)", "constraints": "" },
+              { "name": "Grant Received from SKIT (Y/N)", "type": "VARCHAR(3)", "constraints": "" },
+              { "name": "Duration", "type": "VARCHAR(100)", "constraints": "" },
+              { "name": "Session", "type": "VARCHAR(50)", "constraints": "" },
+              { "name": "No.of Days", "type": "INT", "constraints": "" },
+              { "name": "Proof Enclosed(Y/N)", "type": "VARCHAR(3)", "constraints": "" }
+          ]
+      }
+  }'
+),
+(
+  'NAAC INDUSTRIAL TRAINING',
+  'In this folder, detailed information related to summer internship of V semester students is shared.',
+  16,
+  '{
+      "NAAC INDUSTRIAL TRAINING": {
+          "columns": [
+              { "name": "ProgrammeName", "type": "VARCHAR(255)", "constraints": "" },
+              { "name": "ProgramCode", "type": "VARCHAR(50)", "constraints": "" },
+              { "name": "RollNo", "type": "VARCHAR(50)", "constraints": "" },
+              { "name": "StudentName", "type": "VARCHAR(255)", "constraints": "" },
+              { "name": "FirmNameAddress", "type": "TEXT", "constraints": "" },
+              { "name": "DurationFrom", "type": "DATE", "constraints": "" },
+              { "name": "DurationTo", "type": "DATE", "constraints": "" },
+              { "name": "ProofLink", "type": "TEXT", "constraints": "" }
+          ]
+      }
+  }'
+),
+(
+  'QIV INDUSTRIAL TRAINING',
+  'In this folder, detailed information related to summer internship of V semester students is shared.',
+  16,
+  '{
+      "QIV INDUSTRIAL TRAINING": {
+          "columns": [
+              { "name": "SNo", "type": "INT", "constraints": "PRIMARY KEY AUTO_INCREMENT" },
+              { "name": "EmailAddress", "type": "VARCHAR(255)", "constraints": "" },
+              { "name": "RollNo", "type": "VARCHAR(50)", "constraints": "" },
+              { "name": "TrainingTitle", "type": "VARCHAR(255)", "constraints": "" },
+              { "name": "StipendAmount", "type": "DECIMAL(10, 2)", "constraints": "" },
+              { "name": "StudentName", "type": "VARCHAR(255)", "constraints": "" },
+              { "name": "CompanyName", "type": "VARCHAR(255)", "constraints": "" },
+              { "name": "DateFrom", "type": "DATE", "constraints": "" },
+              { "name": "DateTo", "type": "DATE", "constraints": "" },
+              { "name": "CertificateLink", "type": "TEXT", "constraints": "" },
+              { "name": "EvaluationFormLink", "type": "TEXT", "constraints": "" },
+              { "name": "InformationVerified", "type": "BOOLEAN", "constraints": "" },
+              { "name": "StipendProofLink", "type": "TEXT", "constraints": "" }
+          ]
+      }
+  }'
+),
+(
+  'NBA INDUSTRIAL TRAINING',
+  '',
+  16,
+  '{
+      "NBA INDUSTRIAL TRAINING": {
+          "columns": [
+              { "name": "SNo", "type": "INT", "constraints": "PRIMARY KEY AUTO_INCREMENT" },
+              { "name": "EmailAddress", "type": "VARCHAR(255)", "constraints": "" },
+              { "name": "RollNo", "type": "VARCHAR(50)", "constraints": "" },
+              { "name": "TrainingTitle", "type": "VARCHAR(255)", "constraints": "" },
+              { "name": "StipendAmount", "type": "DECIMAL(10, 2)", "constraints": "" },
+              { "name": "StudentName", "type": "VARCHAR(255)", "constraints": "" },
+              { "name": "CompanyName", "type": "VARCHAR(255)", "constraints": "" },
+              { "name": "DateFrom", "type": "DATE", "constraints": "" },
+              { "name": "DateTo", "type": "DATE", "constraints": "" },
+              { "name": "CertificateLink", "type": "TEXT", "constraints": "" },
+              { "name": "EvaluationFormLink", "type": "TEXT", "constraints": "" },
+              { "name": "InformationVerified", "type": "BOOLEAN", "constraints": "" },
+              { "name": "StipendProofLink", "type": "TEXT", "constraints": "" }
+          ]
+      }
+  }'
+),
+(
+  'Student Courses',
+  'In this folder, we will manage : Template for SKIT TIMES Data',
+  17,
+  '{
+      "Student Courses": {
+          "columns": [
+              { "name": "S. No.", "type": "INT", "constraints": "PRIMARY KEY" },
+              { "name": "Roll No.", "type": "VARCHAR(50)", "constraints": "" },
+              { "name": "Enrolment No.", "type": "VARCHAR(50)", "constraints": "" },
+              { "name": "Student Name", "type": "VARCHAR(100)", "constraints": "" },
+              { "name": "E-mail (SKIT Domain)", "type": "VARCHAR(100)", "constraints": "" },
+              { "name": "E-mail (Personal)", "type": "VARCHAR(100)", "constraints": "" },
+              { "name": "Branch", "type": "VARCHAR(50)", "constraints": "" },
+              { "name": "Section", "type": "VARCHAR(10)", "constraints": "" },
+              { "name": "Name of Course 1", "type": "VARCHAR(100)", "constraints": "" },
+              { "name": "Attach Course 1 Certificate", "type": "BLOB", "constraints": "" },
+              { "name": "Name of Course 2", "type": "VARCHAR(100)", "constraints": "" },
+              { "name": "Attach Course 2 Certificate", "type": "BLOB", "constraints": "" }
+          ]
+      }
+  }'
+),
+(
+  'COE Event Training Report',
+  'In this folder, detailed information related to IoT CoE.',
+  18,
+  '{
+      "COE Event Training Report": {
+          "columns": [
+              { "name": "Sr. No.", "type": "INT", "constraints": "PRIMARY KEY AUTO_INCREMENT" },
+              { "name": "Dates (from-to) (in DD.MM.YYYY format only)", "type": "VARCHAR(50)", "constraints": "" },
+              { "name": "Departments / Cell / Committees / Labs /COE", "type": "VARCHAR(255)", "constraints": "" },
+              { "name": "Name of Faculty Coordinator (s)", "type": "TEXT", "constraints": "" },
+              { "name": "Title of the professional development program organised for students", "type": "TEXT", "constraints": "" },
+              { "name": "Title of the professional development program organised for teaching staff", "type": "TEXT", "constraints": "" },
+              { "name": "Title of the administrative training program organised for non-teaching staff", "type": "TEXT", "constraints": "" },
+              { "name": "No. of participants", "type": "INT", "constraints": "" },
+              { "name": "Academic Session", "type": "VARCHAR(50)", "constraints": "" },
+              { "name": "Collaboration-Details (If any)", "type": "TEXT", "constraints": "" },
+              { "name": "Grant Received (YES/NO)", "type": "VARCHAR(3)", "constraints": "" },
+              { "name": "Grant Details", "type": "TEXT", "constraints": "" },
+              { "name": "Association with professional societies for organization of event", "type": "TEXT", "constraints": "" },
+              { "name": "Number of SKIT students participated (Provided list of students with their RTU roll no. & Certificates)", "type": "TEXT", "constraints": "" },
+              { "name": "Number of staff member participated (Provide list of staff member with their EMPLOYEE ID & Certificates)", "type": "TEXT", "constraints": "" },
+              { "name": "Event report attached in proper format (YES/NO)", "type": "VARCHAR(3)", "constraints": "" },
+              { "name": "Remarks", "type": "TEXT", "constraints": "" }
+          ]
+      }
+  }'
+),
+(
+  'NAAC QIV NBA MoU Report',
+  'In this folder, we will manage Memorandum of understanding (MoU) with Microsoft.',
+  19,
+  '{
+      "NAAC QIV NBA MoU Report": {
+          "columns": [
+              { "name": "Organization with which MoU is signed", "type": "VARCHAR(255)", "constraints": "" },
+              { "name": "Name of the institution/ industry/ corporate house", "type": "VARCHAR(255)", "constraints": "" },
+              { "name": "Year of signing MoU", "type": "YEAR", "constraints": "" },
+              { "name": "Duration", "type": "VARCHAR(50)", "constraints": "" },
+              { "name": "List the actual activities under each MOU year wise", "type": "TEXT", "constraints": "" },
+              { "name": "Number of students/teachers participated under MoUs", "type": "INT", "constraints": "" }
+          ]
+      }
+  }'
+),
+(
+  'MASTER format faculty higher study',
+  'In this folder, we will manage faculty’s Higher study data',
+  14,
+  '{
+      "MASTER format faculty higher study": {
+          "columns": [
+              { "name": "Sr No", "type": "INT", "constraints": "" },
+              { "name": "Name", "type": "VARCHAR(100)", "constraints": "" },
+              { "name": "Department", "type": "VARCHAR(100)", "constraints": "" },
+              { "name": "Designation", "type": "VARCHAR(100)", "constraints": "" },
+              { "name": "Employee ID", "type": "VARCHAR(50)", "constraints": "" },
+              { "name": "Qualification", "type": "VARCHAR(100)", "constraints": "" },
+              { "name": "Joining Date", "type": "DATE", "constraints": "" },
+              { "name": "Promotion Date", "type": "DATE", "constraints": "" },
+              { "name": "Retirement Date", "type": "DATE", "constraints": "" },
+              { "name": "Offer Letter Status", "type": "BOOLEAN", "constraints": "" },
+              { "name": "Appointment Letter Status", "type": "BOOLEAN", "constraints": "" },
+              { "name": "Highest Degree", "type": "VARCHAR(100)", "constraints": "" },
+              { "name": "Degree Awarding University", "type": "VARCHAR(100)", "constraints": "" },
+              { "name": "PhD Pursuing", "type": "BOOLEAN", "constraints": "" },
+              { "name": "PhD Registration Date", "type": "DATE", "constraints": "" },
+              { "name": "PAN No", "type": "VARCHAR(20)", "constraints": "" },
+              { "name": "Area of Specialization", "type": "VARCHAR(100)", "constraints": "" },
+              { "name": "Date of Birth", "type": "DATE", "constraints": "" },
+              { "name": "Info Correct As Per Knowledge", "type": "BOOLEAN", "constraints": "" },
+              { "name": "Awards Recognitions Extension Activities", "type": "TEXT", "constraints": "" }
+          ]
+      }
+  }'
+),
+(
+  'AICTE format faculty personal data',
+  'In this folder, we will manage faculties Personal data',
+ 13,
+ '{
+     "AICTE format faculty personal data": {
+         "columns": [
+             { "name": "Sr No", "type": "INT" },
+             { "name": "Faculty Name", "type": "VARCHAR(100)" },
+             { "name": "Department", "type": "VARCHAR(100)" },
+             { "name": "PAN No", "type": "VARCHAR(20)" },
+             { "name": "Aadhaar No", "type": "VARCHAR(20)" },
+             { "name": "AICTE Unique ID", "type": "VARCHAR(50)" },
+             { "name": "Valid Vidwan ID", "type": "VARCHAR(50)" },
+             { "name": "Caste Category", "type": "VARCHAR(50)" },
+             { "name": "RCI Status", "type": "VARCHAR(50)" },
+             { "name": "Faculty Status", "type": "VARCHAR(50)" },
+             { "name": "All India Council Status", "type": "VARCHAR(50)" },
+             { "name": "Designation", "type": "VARCHAR(100)" },
+             { "name": "Date of Joining", "type": "DATE" },
+             { "name": "Date of Confirmation", "type": "DATE" },
+             { "name": "Name as per Degree", "type": "VARCHAR(100)" },
+             { "name": "Qualification", "type": "VARCHAR(100)" },
+             { "name": "Additional Qualification", "type": "VARCHAR(100)" },
+             { "name": "Faculty ID", "type": "VARCHAR(50)" },
+             { "name": "Email ID", "type": "VARCHAR(100)" },
+             { "name": "Mobile No", "type": "VARCHAR(15)" },
+             { "name": "Highest Qualification", "type": "VARCHAR(100)" },
+             { "name": "Program Taught", "type": "VARCHAR(100)" },
+             { "name": "UG or PG or PhD", "type": "VARCHAR(20)" },
+             { "name": "Appointment Type", "type": "VARCHAR(50)" },
+             { "name": "Date of Appraisal", "type": "DATE" },
+             { "name": "FDP Attended", "type": "VARCHAR(100)" },
+             { "name": "FDP Duration", "type": "VARCHAR(50)" },
+             { "name": "FDP Certificate Uploaded", "type": "BOOLEAN" },
+             { "name": "Guide Ship Status", "type": "BOOLEAN" },
+             { "name": "PG Guide", "type": "BOOLEAN" },
+             { "name": "Doctorate Guide", "type": "BOOLEAN" },
+             { "name": "Common Subject Teacher FY", "type": "BOOLEAN" }
+         ]
+     }
+ }'
+),
+(
+  'NAAC format faculty higher study',
+  'In this folder, we will manage faculties Personal data',
+ 13,
+ '{
+     "NAAC format faculty higher study": {
+         "columns": [
+             { "name": "Sr No", "type": "INT" },
+             { "name": "Name", "type": "VARCHAR(100)" },
+             { "name": "Department", "type": "VARCHAR(100)" },
+             { "name": "Designation", "type": "VARCHAR(100)" },
+             { "name": "Employee ID", "type": "VARCHAR(50)" },
+             { "name": "Qualification", "type": "VARCHAR(100)" },
+             { "name": "Joining Date", "type": "DATE" },
+             { "name": "Promotion Date", "type": "DATE" },
+             { "name": "Retirement Date", "type": "DATE" },
+             { "name": "Offer Letter Status", "type": "BOOLEAN" },
+             { "name": "Appointment Letter Status", "type": "BOOLEAN" },
+             { "name": "Highest Degree", "type": "VARCHAR(100)" },
+             { "name": "Degree Awarding University", "type": "VARCHAR(100)" },
+             { "name": "PhD Pursuing", "type": "BOOLEAN" },
+             { "name": "PhD Registration Date", "type": "DATE" },
+             { "name": "PhD Area of Specialization", "type": "VARCHAR(100)" },
+             { "name": "Date of Birth", "type": "DATE" },
+             { "name": "Information Verified", "type": "BOOLEAN" },
+             { "name": "Awards and Recognitions", "type": "TEXT" }
+         ]
+     }
+ }'
+);
