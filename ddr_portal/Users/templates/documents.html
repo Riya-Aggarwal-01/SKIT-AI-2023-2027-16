@@ -80,7 +80,7 @@
     </div>
     <div class="right-side">
       <i class="bi bi-house-door" onclick="location.href='{% url 'role_redirect' %}'"></i>
-      <i class="bi bi-person-circle" onclick="location.href='{% url 'profile' %}'"></i>
+      <i class="bi bi-person-circle" onclick="location.href='#'"></i>
     </div>
   </div>
 
@@ -115,9 +115,9 @@
         <li data-title="{{ doc.title|lower }}">
           <span>📄 {{ doc.title }}</span>
           <div class="actions">
-            <a href="{% url 'download_excel' doc.id %}">Download Excel</a>
-            <a href="{% url 'see_template' doc.id %}">See Template</a>
-            <a href="{% url 'uploaded_files' doc.id %}">View Uploaded Files</a>
+            <a href="#">Download Excel</a>
+            <a href="#">See Template</a>
+            <a href="#">View Uploaded Files</a>
           </div>
         </li>
       {% empty %}

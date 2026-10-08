@@ -24,4 +24,11 @@ urlpatterns = [
          name='password_reset_complete'),
      path('folders/', views.folder_list, name='folder_list'),
      path('folders/<int:folder_id>/', views.folder_documents, name='folder_documents'),
+    path('download-excel/<int:doc_id>/', views.download_excel, name='download_excel'),
+path('see-template/<int:doc_id>/', views.see_template, name='see_template'),
+    path('upload/', views.upload_folder_list, name='upload_folder_list'),  # → uses upload_file_list.html
+    path('upload/folder/<int:folder_id>/', views.upload_document_list, name='upload_document_list'),
+    # → uses upload_document_list.html
+    path('upload/ajax/', views.ajax_upload_file, name='ajax_upload_file'),
+
 ]
