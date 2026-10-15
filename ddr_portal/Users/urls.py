@@ -22,13 +22,16 @@ urlpatterns = [
     path('reset/done/',
          auth_views.PasswordResetCompleteView.as_view(template_name='password_reset_complete.html'),
          name='password_reset_complete'),
-     path('folders/', views.folder_list, name='folder_list'),
-     path('folders/<int:folder_id>/', views.folder_documents, name='folder_documents'),
+    path('folders/', views.folder_list, name='folder_list'),
+    path('folders/<int:folder_id>/', views.folder_documents, name='folder_documents'),
     path('download-excel/<int:doc_id>/', views.download_excel, name='download_excel'),
-path('see-template/<int:doc_id>/', views.see_template, name='see_template'),
+    path('see-template/<int:doc_id>/', views.see_template, name='see_template'),
     path('upload/', views.upload_folder_list, name='upload_folder_list'),  # → uses upload_file_list.html
     path('upload/folder/<int:folder_id>/', views.upload_document_list, name='upload_document_list'),
     # → uses upload_document_list.html
     path('upload/ajax/', views.ajax_upload_file, name='ajax_upload_file'),
-
+    path("assign_roles/", views.assign_folder_role, name="assign_folder_role"),
+    path("folder-role-assignments/", views.folder_role_assignments, name="folder_role_assignments"),
+    path("under_head_role/", views.under_head_role, name="under_head_role"),
+    path("remove-role/<int:user_role_id>/", views.remove_role, name="remove_role"),
 ]

@@ -23,6 +23,7 @@ from io import BytesIO
 import hashlib
 import mimetypes
 
+
 # Local imports
 from .forms import CustomUserCreationForm, CustomLoginForm
 from .models import (
@@ -369,3 +370,184 @@ def get_visible_documents(user, folder):
     # If Faculty, return only assigned documents
     faculty_roles = user_roles.filter(role__name='Faculty', file__isnull=False, is_active=True, is_deleted=False)
     return Document.objects.filter(id__in=faculty_roles.values_list('file_id', flat=True), is_active=True, is_deleted=False)
+
+@login_required
+def assign_folder_role(request):
+    from django.utils.timezone import now
+
+    admin_role_id = Role.objects.get(role_name__iexact="admin").role_id
+
+    def assign_recursive(user_id, folder_id, role_id):
+        """
+        Recursively assign role to folder, all its subfolders, and documents.
+        """
+        # Assign role to folder itself
+        FolderUserRole.objects.get_or_create(
+            user_id=user_id,
+            folder_id=folder_id,
+            role_id=role_id,
+            defaults={"assigned_at": now()}
+        )
+
+        # Assign role to all documents inside this folder
+        documents = Document.objects.filter(folder_id=folder_id, is_deleted=False)
+        for doc in documents:
+            FolderUserRole.objects.get_or_create(
+                user_id=user_id,
+                file_id=doc.id,
+                role_id=role_id,
+                folder_id=folder_id,
+                defaults={"assigned_at": now()}
+            )
+
+        # Recurse into subfolders
+        subfolders = Folder.objects.filter(parent_id=folder_id, is_active=True)
+        for sub in subfolders:
+            assign_recursive(user_id, sub.id, role_id)
+
+    if request.method == "POST":
+        user_id = request.POST.get("user_id")
+        folder_id = request.POST.get("folder_id")
+        role_id = int(request.POST.get("role_id"))
+        file_id = request.POST.get("file_id") or None
+        include_subtree = request.POST.get("include_subtree") == "true"
+
+        if user_id and role_id:
+            try:
+                if role_id == admin_role_id:
+                    # Admin → assign everything
+                    for folder in Folder.objects.filter(is_active=True):
+                        assign_recursive(user_id, folder.id, role_id)
+                    messages.success(request, "Admin role assigned with full access.")
+                else:
+                    if file_id and str(file_id).startswith("subfolder-"):
+                        subfolder_id = int(file_id.replace("subfolder-", ""))
+                        if include_subtree:
+                            assign_recursive(user_id, subfolder_id, role_id)
+                            messages.success(request, "Role assigned recursively to subfolder and its contents.")
+                        else:
+                            # Only assign to this subfolder
+                            FolderUserRole.objects.get_or_create(
+                                user_id=user_id,
+                                folder_id=subfolder_id,
+                                role_id=role_id,
+                                defaults={"assigned_at": now()}
+                            )
+                            messages.success(request, "Role assigned to selected subfolder.")
+                    else:
+                        # Document or folder only
+                        exists = FolderUserRole.objects.filter(
+                            user_id=user_id,
+                            folder_id=folder_id,
+                            file_id=file_id,
+                            role_id=role_id
+                        ).exists()
+                        if exists:
+                            messages.warning(request, "This role assignment already exists.")
+                        else:
+                            FolderUserRole.objects.create(
+                                user_id=user_id,
+                                folder_id=folder_id,
+                                file_id=file_id,
+                                role_id=role_id,
+                                assigned_at=now()
+                            )
+                            messages.success(request, "Role assigned successfully to document/folder.")
+
+            except Exception as e:
+                messages.error(request, f"Error: {str(e)}")
+        else:
+            messages.error(request, "User and role are required.")
+
+        return redirect('assign_folder_role')
+
+    # GET request → show form only
+    users = User.objects.all()
+    folders = Folder.objects.filter(is_active=True, parent__isnull=True)
+    roles = Role.objects.all()
+    documents = Document.objects.filter(is_deleted=False).select_related("folder")
+    subfolders = Folder.objects.filter(is_active=True, parent__isnull=False)
+
+    return render(request, "assign_folder_roles.html", {
+        "users": users,
+        "folders": folders,
+        "roles": roles,
+        "documents": documents,
+        "subfolders": subfolders,
+    })
+
+def assign_recursive(user_id, folder_id, role_id):
+    # Assign to the folder itself
+    FolderUserRole.objects.get_or_create(user_id=user_id, folder_id=folder_id, role_id=role_id)
+
+    # Assign to all documents in this folder
+    documents = Document.objects.filter(folder_id=folder_id, is_deleted=False)
+    for doc in documents:
+        FolderUserRole.objects.get_or_create(user_id=user_id, file_id=doc.id, folder_id=folder_id, role_id=role_id)
+
+    # Recurse into subfolders
+    subfolders = Folder.objects.filter(parent_id=folder_id, is_active=True)
+    for sub in subfolders:
+        assign_recursive(user_id, sub.id, role_id)
+
+
+@login_required
+def under_head_role(request):
+    if request.method == "GET":
+        # Get current user
+        current_user = request.user
+
+        folder_head_roles = FolderUserRole.objects.filter(
+            user=current_user,
+            role__role_name__iexact="Head"
+        ).values_list('folder_id', flat=True)
+
+        assignments = FolderUserRole.objects.select_related("user", "folder", "role", "file").filter(folder_id__in=folder_head_roles)
+        return render(request, "folder_role_assignments.html", {"assignments": assignments})
+    else:
+        return render(request, "error.html", {"message": "Invalid request method."})
+
+
+@login_required
+def folder_role_assignments(request):
+    assignments = FolderUserRole.objects.select_related("user", "folder", "role", "file").all()
+    return render(request, "folder_role_assignments.html", {"assignments": assignments})
+
+    # GET request
+    users = User.objects.exclude(is_superuser=True)  # remove admin from user dropdown
+    folders = Folder.objects.all()
+    roles = Role.objects.all()
+    documents = Document.objects.select_related('folder').all()
+    assignments = FolderUserRole.objects.select_related('user', 'folder', 'role', 'file')
+
+    return render(request, "assign_folder_roles.html", {
+        "users": users,
+        "folders": folders,
+        "roles": roles,
+        "assignments": assignments,
+        "documents": documents
+    })
+
+@login_required
+def remove_role(request, user_role_id):
+    role_instance = get_object_or_404(FolderUserRole, id=user_role_id)
+
+    # Check if removing last admin
+    if role_instance.role.role_name.lower() == "admin":
+        admin_count = FolderUserRole.objects.filter(role__role_name__iexact="admin").count()
+        if admin_count <= 1:
+            # First confirmation
+            confirm1 = request.GET.get("confirm1")
+            confirm2 = request.GET.get("confirm2")
+
+            if not confirm1:
+                messages.warning(request, "Are you sure you want to remove the LAST admin? Click again to confirm.")
+                return redirect(f"{request.path}?confirm1=true")
+
+            if not confirm2:
+                messages.warning(request, "This is your FINAL confirmation. Click again to permanently remove.")
+                return redirect(f"{request.path}?confirm1=true&confirm2=true")
+
+    role_instance.delete()
+    messages.success(request, "Role removed successfully.")
+    return redirect("folder_role_assignments")

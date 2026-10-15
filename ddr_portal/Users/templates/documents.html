@@ -115,10 +115,18 @@
         <li data-title="{{ doc.title|lower }}">
           <span>📄 {{ doc.title }}</span>
           <div class="actions">
-            <a href="#">Download Excel</a>
-            <a href="#">See Template</a>
-            <a href="#">View Uploaded Files</a>
-          </div>
+          <a href="{% url 'download_file' doc.id %}">
+            Download Excel
+          </a>
+
+          <a href="{% url 'template_preview' doc.id %}">
+           See Template
+          </a>
+
+          <a href="{% url 'uploaded_files' doc.id %}">
+          View Uploaded Files
+          </a>
+        </div>
         </li>
       {% empty %}
         <li>No documents found in this folder.</li>
