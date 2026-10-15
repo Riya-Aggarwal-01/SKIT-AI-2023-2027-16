@@ -1,0 +1,273 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Edit Document: {{ document.title }}</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f7f9fc;
+    }
+
+    /* Top Bar */
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 30px;
+      background-color: #fff;
+      border-bottom: 1px solid #ddd;
+      height: 70px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    .left-side {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .logo-placeholder {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background-color: #eee;
+    }
+
+    .logo-placeholder img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .search-box input {
+      padding: 10px 16px;
+      border-radius: 20px;
+      border: 1px solid #ccc;
+      outline: none;
+      width: 320px;
+      font-size: 14px;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    .right-side {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      margin-right: 40px;
+    }
+
+    .right-side i {
+      font-size: 22px;
+      color: #333;
+      cursor: pointer;
+    }
+
+    /* Breadcrumbs */
+    .breadcrumbs {
+      padding: 20px 30px 0;
+      font-size: 14px;
+      color: #666;
+    }
+
+    .breadcrumbs a {
+      text-decoration: none;
+      color: #003973;
+      margin-right: 5px;
+    }
+
+    .breadcrumbs a:hover {
+      text-decoration: underline;
+    }
+
+    /* Main Form Section */
+    .folder-section {
+      background-color: #fff;
+      margin: 30px 300px 40px 300px;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    }
+
+    .folder-section h2 {
+      font-size: 20px;
+      margin-bottom: 20px;
+      color: #003973;
+    }
+
+    form label {
+      display: block;
+      margin-top: 12px;
+      font-weight: 600;
+      color: #444;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    form input[type="text"],
+    form textarea {
+      width: 100%;
+      padding: 10px;
+      margin-top: 6px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 14px;
+      font-family: 'Segoe UI', sans-serif;
+      outline: none;
+      transition: border 0.2s;
+    }
+
+    form input[type="text"]:focus,
+    form textarea:focus {
+      border-color: #003973;
+    }
+
+    textarea {
+      min-height: 100px;
+    }
+
+    .column-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+      align-items: center;
+    }
+
+    .column-row input {
+      flex: 1;
+    }
+
+    .remove-btn {
+      background-color: #dc3545;
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    .remove-btn:hover {
+      background-color: #b02a37;
+    }
+
+    .add-btn {
+      background-color: #0d6efd;
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 15px;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    .add-btn:hover {
+      background-color: #0a58ca;
+    }
+
+    .save-btn {
+      background-color: #003973;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 20px;
+      font-size: 15px;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    .save-btn:hover {
+      background-color: #002147;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div class="left-side">
+      <div class="logo-placeholder">
+        <img src="{% static 'images/skit_logo.jpg' %}" alt="Logo">
+      </div>
+      <div class="search-box">
+        <input type="text" placeholder="Search...">
+      </div>
+    </div>
+
+    <div class="right-side">
+      <i class="bi bi-house-door" onclick="location.href='{% url 'role_redirect' %}'"></i>
+      <i class="bi bi-person-circle" onclick="location.href='{% url 'profile' %}'"></i>
+    </div>
+  </div>
+
+  <!-- Breadcrumbs -->
+  <div class="breadcrumbs">
+        <a href="{% url 'role_redirect' %}">Dashboard</a> >
+    <a href="{% url 'folder_edit_documents' document.folder.id %}">{{ document.folder.folder_name }}</a> >
+    <span>Edit Document</span>
+  </div>
+
+  <!-- Main Content -->
+  <div class="folder-section">
+    <h2>Edit Document: {{ document.title }}</h2>
+
+    <form method="POST">
+      {% csrf_token %}
+
+      <label>Document Title:</label>
+      <input type="text" name="title" value="{{ document.title }}" required>
+
+      <label>Description:</label>
+      <textarea name="description">{{ document.description }}</textarea>
+
+      <hr>
+
+      <label>Table Name:</label>
+      <input type="text" name="table_name" value="{{ table_name }}" required>
+
+      <h3>Columns</h3>
+      <div id="columns-container">
+        {% for col in columns %}
+            <div class="column-row" style="margin-bottom: 5px;">
+                <input type="text" name="col_name_{{ forloop.counter0 }}" value="{{ col.name }}" placeholder="Column Name" required>
+                <input type="text" name="col_type_{{ forloop.counter0 }}" value="{{ col.type }}" placeholder="Type" required>
+                <input type="text" name="col_constraints_{{ forloop.counter0 }}" value="{{ col.constraints|default:'' }}" placeholder="Constraints">
+                <button type="submit" name="remove_column" value="{{ forloop.counter0 }}" class="remove-btn" onclick="return confirm('Are you sure you want to remove this column?');">Remove</button>
+            </div>
+        {% endfor %}
+      </div>
+
+      <input type="hidden" name="total_columns" id="total_columns" value="{{ columns|length }}">
+
+      <!-- Add new column dynamically -->
+      <button type="button" class="add-btn" onclick="addColumn()">+ Add Column</button>
+      <br><br>
+
+      <button type="submit" class="save-btn">Save Changes</button>
+    </form>
+  </div>
+
+  <!-- Script for adding new columns -->
+  <script>
+    function addColumn() {
+      const container = document.getElementById('columns-container');
+      const index = container.children.length;
+      const div = document.createElement('div');
+      div.classList.add('column-row');
+      div.innerHTML = `
+        <input type="text" name="col_name_${index}" placeholder="Column Name" required>
+        <input type="text" name="col_type_${index}" placeholder="Type" required>
+        <input type="text" name="col_constraints_${index}" placeholder="Constraints">
+      `;
+      container.appendChild(div);
+      document.getElementById('total_columns').value = container.children.length;
+    }
+  </script>
+
+</body>
+</html>
