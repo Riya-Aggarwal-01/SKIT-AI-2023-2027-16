@@ -100,3 +100,29 @@ class FolderUserRole(models.Model):
             parts.append(self.document.title)  # assuming 'title' is the correct field
         parts.append(self.role.role_name)
         return " - ".join(parts)
+
+class ActivityLog(models.Model):
+    ACTION_CHOICES = [
+        ("UPLOAD", "Uploaded"),
+        ("EDIT", "Edited"),
+        ("DELETE", "Deleted"),
+        ("RESTORE", "Restored"),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    upload = models.ForeignKey(
+        'Upload',
+        on_delete=models.SET_NULL,  # don't delete log when upload is deleted
+        null=True,
+        blank=True
+    )
+    file_name = models.CharField(max_length=255, blank=True, null=True)
+    action = models.CharField(max_length=20, choices=ACTION_CHOICES)
+    timestamp = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        db_table = "Users_activitylog"
+
+    def __str__(self):
+        file_name = self.upload.file_name if self.upload else "[Deleted File]"
+        return f"{self.user.username} {self.get_action_display()} {file_name} on {self.timestamp.strftime('%Y-%m-%d %H:%M:%S')}"
