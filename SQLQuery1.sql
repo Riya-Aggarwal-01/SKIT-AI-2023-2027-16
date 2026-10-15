@@ -1796,3 +1796,36 @@ VALUES (
      }
  }'
 );
+
+-- Create Folder uploads
+CREATE TABLE uploads (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    document_id INT NOT NULL,
+    folder_id INT NOT NULL,
+    uploaded_by INT NOT NULL,
+    upload_time DATETIME DEFAULT GETDATE(),
+    file_name NVARCHAR(255) NOT NULL,
+    file_blob VARBINARY(MAX) NOT NULL,
+    file_size BIGINT,
+    mime_type NVARCHAR(255),
+    sha256_hash CHAR(64),
+    is_deleted BIT NOT NULL DEFAULT 0,
+
+    CONSTRAINT FK_uploads_document FOREIGN KEY (document_id) REFERENCES DOCUMENTS(id),
+    CONSTRAINT FK_uploads_folder FOREIGN KEY (folder_id) REFERENCES FOLDERS(id),
+    CONSTRAINT FK_uploads_uploaded_by FOREIGN KEY (uploaded_by) REFERENCES auth_user(id)
+);
+
+-- Create Folder User Role
+
+CREATE TABLE FOLDER_USER_ROLE (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    user_id INT NOT NULL FOREIGN KEY REFERENCES auth_user(id),
+    folder_id INT NOT NULL FOREIGN KEY REFERENCES FOLDERS(id),
+    file_id INT NULL FOREIGN KEY REFERENCES DOCUMENTS(id), -- newly added (optional, nullable)
+    role_id INT NOT NULL FOREIGN KEY REFERENCES ROLES(role_id),
+    assigned_at DATETIME DEFAULT GETDATE(),
+
+    CONSTRAINT UQ_user_folder UNIQUE (user_id, folder_id, file_id)
+);
+GO
