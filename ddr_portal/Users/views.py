@@ -10,6 +10,8 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.timezone import now
 from django.views.decorators.http import require_POST
+from .models import ActivityLog
+from docx import Document as DocxDocument
 
 # Third-party libraries
 from openpyxl import Workbook
@@ -682,4 +684,528 @@ def uploaded_files(request, document_id):
     return render(request, 'uploaded_files.html', {
         'document': document,
         'files': files
+    })
+
+
+@login_required
+def history_index(request):
+    user = request.user
+
+    # Get user's role name
+    try:
+        role_name = UserRole.objects.select_related('role').get(user=user).role.role_name.lower()
+    except UserRole.DoesNotExist:
+        role_name = None
+
+    if role_name == "admin":
+        files = Upload.objects.select_related('uploaded_by', 'folder', 'document').filter(
+            folder__is_active=True,
+            document__is_deleted=False
+        ).order_by('-upload_time')
+
+    else:
+        # Get folder IDs user has access to
+        folder_ids = FolderUserRole.objects.filter(
+            user=user,
+            folder__isnull=False,
+            folder__is_active=True
+        ).values_list('folder_id', flat=True)
+
+        # Get document IDs user has access to
+        file_ids = FolderUserRole.objects.filter(
+            user=user,
+            file__isnull=False,
+            file__is_deleted=False
+        ).values_list('file_id', flat=True)
+
+        files = Upload.objects.select_related('uploaded_by', 'folder', 'document').filter(
+            Q(document_id__in=file_ids) | Q(folder_id__in=folder_ids),
+            folder__is_active=True,
+            document__is_deleted=False
+        ).order_by('-upload_time')
+
+    return render(request, 'history_index.html', {'files': files})
+
+@login_required
+def history_view_file(request, file_id):
+    file = get_object_or_404(
+        Upload,
+        id=file_id,
+        folder__is_active=True,
+        document__is_deleted=False
+    )
+
+    filename = file.file_name.lower()
+    headers, rows = [], []
+    preview_type, text_content, images_data = None, "", []
+
+    try:
+        if filename.endswith(".csv"):
+            # Read CSV
+            content = file.file_blob.decode("utf-8")
+            reader = list(csv.reader(io.StringIO(content)))
+            if reader:
+                headers = reader[0]
+                rows = reader[1:]
+
+        elif filename.endswith(".xlsx"):
+            # Read Excel
+            in_memory_file = io.BytesIO(file.file_blob)
+            wb = openpyxl.load_workbook(in_memory_file, data_only=True)
+            sheet = wb.active
+            data = list(sheet.iter_rows(values_only=True))
+
+            if data:
+                headers = [str(cell) if cell is not None else "" for cell in data[0]]
+                rows = [
+                    [str(cell) if cell is not None else "" for cell in row]
+                    for row in data[1:]
+                ]
+
+        elif filename.endswith(".pdf"):
+            # Mark for PDF preview
+            preview_type = "pdf"
+
+        elif filename.endswith(".docx"):
+            # Extract text and images from DOCX
+            in_memory_file = io.BytesIO(file.file_blob)
+            doc = DocxDocument(in_memory_file)
+
+            # Extract text
+            text_content = "\n".join([p.text for p in doc.paragraphs if p.text.strip()])
+
+            # Extract images as base64
+            for rel in doc.part.rels.values():
+                if "image" in rel.reltype:
+                    image_stream = rel.target_part.blob
+                    b64 = base64.b64encode(image_stream).decode('utf-8')
+                    mime = rel.target_part.content_type  # e.g., image/png
+                    images_data.append(f"data:{mime};base64,{b64}")
+
+            preview_type = "docx"
+
+        elif filename.endswith((".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp")):
+            # Image preview
+            preview_type = "image"
+        else:
+            return render(request, "history_view.html", {
+                "file": file,
+                "headers": None,
+                "rows": None,
+                "preview_type": None,
+                "message": "Preview not supported for this file type."
+            })
+
+        return render(request, "history_view.html", {
+            "file": file,
+            "headers": headers,
+            "rows": rows,
+            "preview_type": preview_type,
+            "text_content": text_content,
+            "images_data": images_data
+        })
+
+    except Exception as e:
+        return HttpResponse(f"Error while reading file: {e}")
+
+
+@login_required
+def view_pdf(request, file_id):
+    """Serve raw PDF so PDF.js can render it in canvas"""
+    file = get_object_or_404(Upload, id=file_id)
+    return FileResponse(io.BytesIO(file.file_blob), content_type="application/pdf")
+
+@login_required
+def history_edit_file(request, file_id):
+    file_obj = get_object_or_404(
+        Upload,
+        id=file_id,
+        folder__is_active=True,
+        document__is_deleted=False
+    )
+
+    extension = file_obj.file_name.lower().split('.')[-1]
+
+    try:
+        file_data = file_obj.file_blob
+        file_stream = BytesIO(file_data)
+
+        if extension == 'csv':
+            df = pd.read_csv(file_stream)
+            if df.empty:
+                return render(request, 'history_edit.html', {'error': 'File is empty or unreadable.'})
+            context = {
+                'df': df.to_dict(orient='records'),
+                'columns': df.columns,
+                'file_id': file_id,
+                'file_type': 'csv'
+            }
+
+        elif extension in ['xls', 'xlsx']:
+            df = pd.read_excel(file_stream, engine='openpyxl')
+            if df.empty:
+                return render(request, 'history_edit.html', {'error': 'File is empty or unreadable.'})
+            context = {
+                'df': df.to_dict(orient='records'),
+                'columns': df.columns,
+                'file_id': file_id,
+                'file_type': 'excel'
+            }
+
+        else:
+            return render(request, 'history_edit.html', {'error': 'Unsupported file format'})
+
+        #  Activity log
+        ActivityLog.objects.create(
+            user=request.user,
+            upload=file_obj,
+            file_name=file_obj.file_name,
+            action="EDIT"
+        )
+
+        return render(request, 'history_edit.html', context)
+
+    except Exception as e:
+        return render(request, 'history_edit.html', {
+            'error': f' Error reading file: {e}'
+        })
+
+@login_required
+def history_save_file(request, file_id):
+    file = get_object_or_404(
+        Upload,
+        id=file_id,
+        folder__is_active=True,
+        document__is_deleted=False
+    )
+
+    extension = file.file_name.lower().split('.')[-1]
+
+    try:
+        if extension in ['csv', 'xls', 'xlsx']:
+            # Recreate DataFrame from POST data
+            headers = request.POST.getlist('columns')
+            total_rows = int(request.POST.get('total_rows', 0))
+
+            rows = []
+            for i in range(total_rows):
+                row = [request.POST.get(f'{col}_{i}', '') for col in headers]
+                rows.append(row)
+
+            df = pd.DataFrame(rows, columns=headers)
+
+            # Save updated file_blob
+            if extension == 'csv':
+                file.file_blob = df.to_csv(index=False, header=True).encode('utf-8')
+            else:  # Excel (xls / xlsx)
+                output = BytesIO()
+                with pd.ExcelWriter(output, engine='openpyxl') as writer:
+                    df.to_excel(writer, index=False, header=True)
+                file.file_blob = output.getvalue()
+
+            file.save()
+
+            # Instead of going back → show updated preview
+            return redirect('history_edit_file', file_id=file.id)
+
+        else:
+            return redirect('history_edit_file', file_id=file.id)
+
+    except Exception as e:
+        print("Error while saving file:", e)
+        return redirect('history_edit_file', file_id=file.id)
+
+
+def history_download_file(request, file_id):
+    file_obj = get_object_or_404(Upload, id=file_id)
+
+    # Ensure file has data
+    if not file_obj.file_blob:
+        raise Http404("File is missing.")
+
+    content_type = file_obj.mime_type or 'application/octet-stream'
+
+    response = HttpResponse(file_obj.file_blob, content_type=content_type)
+    response['Content-Disposition'] = f'attachment; filename="{file_obj.file_name or "download"}"'
+    return response
+
+
+@login_required
+def history_delete_file(request, file_id):
+    file_obj = get_object_or_404(Upload, id=file_id)
+    file_obj.is_deleted = True
+    file_obj.save()
+    ActivityLog.objects.create(
+        user=request.user,
+        upload=file_obj,
+        file_name=file_obj.file_name,
+        action="DELETE",
+        timestamp=timezone.now()
+    )
+
+    return redirect('history_index')
+
+
+@login_required
+def edit_folders(request):
+    if request.method == "POST":
+        action = request.POST.get("action")
+
+        if action == "add":
+            folder_name = request.POST.get("folder_name")
+            category = request.POST.get("category")
+            if folder_name:
+                Folder.objects.create(
+                    folder_name=folder_name,
+                    category=category or None,
+                    parent=None,  # root folder
+                    created_at=timezone.now(),
+                    updated_at=timezone.now(),
+                    is_active=True,
+                )
+                messages.success(request, "Folder added successfully.")
+            else:
+                messages.error(request, "Folder name cannot be empty.")
+
+
+        elif action == "delete":
+
+            folder_id = request.POST.get("folder_id")
+
+            folder = Folder.objects.filter(id=folder_id, is_active=True).first()
+
+            if folder:
+
+                soft_delete_folder_and_descendants(folder)
+
+                messages.success(request, "Folder, its subfolders and all related documents soft-deleted successfully.")
+
+            else:
+                messages.error(request, "Folder not found or already deleted.")
+
+        return redirect("edit_folders")
+
+    # Only show active root folders
+    folders = Folder.objects.filter(is_active=True, parent__isnull=True).order_by("folder_name")
+    return render(request, "edit_folders.html", {"folders": folders})
+
+def collect_descendant_folder_ids(root_id):
+    """
+    Return list of descendant folder IDs (does NOT include root_id).
+    Uses iterative BFS-style queries to avoid deep recursion and to be efficient.
+    """
+    descendants = []
+    queue = [root_id]
+
+    while True:
+        children = list(Folder.objects.filter(parent_id__in=queue).values_list('id', flat=True))
+        # stop when no more children
+        if not children:
+            break
+        descendants.extend(children)
+        queue = children
+
+    return descendants  # list of ids (may be empty)
+
+def soft_delete_folder_and_descendants(root_folder):
+    """
+    Soft-delete root_folder and every descendant folder + all documents under them.
+    Uses bulk updates for efficiency. Does NOT call model .save() on each instance,
+    so model signals (pre_save/post_save) will NOT be triggered.
+    """
+    now_ts = timezone.now()
+    # collect descendant ids (does not include root)
+    descendant_ids = collect_descendant_folder_ids(root_folder.id)
+    # build set of all ids including root
+    all_folder_ids = set(descendant_ids) | {root_folder.id}
+
+    with transaction.atomic():
+        # mark folders inactive and set updated_at
+        Folder.objects.filter(id__in=all_folder_ids).update(is_active=False, updated_at=now_ts)
+
+        # mark all docs in those folders as deleted
+        Document.objects.filter(folder_id__in=all_folder_ids, is_deleted=False).update(is_deleted=True)
+
+
+@login_required
+def edit_folder_documents(request, folder_id):
+    folder = get_object_or_404(Folder, id=folder_id, is_active=True)
+
+    if request.method == "POST":
+        action = request.POST.get("action")
+
+        # ---------------- Add Document ----------------
+        if action == "add_document":
+            title = request.POST.get("title")
+            description = request.POST.get("description", "")
+            if title:
+                Document.objects.create(
+                    title=title,
+                    description=description,
+                    folder=folder,
+                    dynamic_data="{}",  # empty JSON
+                    created_at=timezone.now(),
+                    is_deleted=False  # default to active
+                )
+                messages.success(request, "Document added successfully.")
+            else:
+                messages.error(request, "Document title cannot be empty.")
+
+        # ---------------- Delete Document (Soft) ----------------
+        elif action == "delete_document":
+            doc_id = request.POST.get("doc_id")
+            doc = Document.objects.filter(id=doc_id, folder=folder, is_deleted=False).first()
+            if doc:
+                doc.is_deleted = True
+                doc.save(update_fields=["is_deleted"])
+                messages.success(request, "Document marked as deleted.")
+            else:
+                messages.error(request, "Document not found or already deleted.")
+
+        #  Add Subfolder 
+        elif action == "add_subfolder":
+            subfolder_name = request.POST.get("subfolder_name")
+            category = request.POST.get("category")
+            if subfolder_name:
+                Folder.objects.create(
+                    folder_name=subfolder_name,
+                    parent=folder,
+                    category=category or None,
+                    created_at=timezone.now(),
+                    updated_at=timezone.now(),
+                    is_active=True,
+                )
+                messages.success(request, "Subfolder added successfully.")
+            else:
+                messages.error(request, "Subfolder name cannot be empty.")
+
+        #  Delete Subfolder (Recursive Soft Delete) 
+        elif action == "delete_subfolder":
+            sub_id = request.POST.get("sub_id")
+            # ensure subfolder is a child of current folder
+            subfolder = Folder.objects.filter(id=sub_id, parent=folder).first()
+            if subfolder and subfolder.is_active:
+                soft_delete_folder_and_descendants(subfolder)
+                messages.success(request, "Subfolder and all nested subfolders/documents soft-deleted successfully.")
+            else:
+                messages.error(request, "Subfolder not found or already deleted.")
+
+    #  Display
+    documents = Document.objects.filter(folder=folder, is_deleted=False)
+    subfolders = Folder.objects.filter(parent=folder, is_active=True).order_by("folder_name")
+
+    return render(request, "edit_folder_documents.html", {
+        "folder": folder,
+        "documents": documents,
+        "subfolders": subfolders,
+    })
+
+@login_required
+def activity_log_view(request):
+
+    logs = ActivityLog.objects.select_related("user", "upload").order_by("-timestamp")
+    return render(request, "activity_log.html", {"logs": logs})
+
+
+def history_restore_file(request, file_id):
+    file_obj = get_object_or_404(Upload, id=file_id)
+    file_obj.is_deleted = False
+    file_obj.upload_time = timezone.now()  
+    file_obj.save()
+
+    ActivityLog.objects.create(
+        user=request.user,
+        upload=file_obj,
+        file_name=file_obj.file_name,
+        action="RESTORE",
+        timestamp=timezone.now()
+    )
+    return redirect('history_index')
+
+def uploaded_files(request, document_id):
+    document = get_object_or_404(Document, id=document_id)
+    files = Upload.objects.filter(document=document, is_deleted=False)
+
+    return render(request, 'uploaded_files.html', {
+        'document': document,
+        'files': files
+    })
+# views.py
+
+@login_required
+def view_image(request, file_id):
+    file = get_object_or_404(Upload, id=file_id)
+    mime_type, _ = mimetypes.guess_type(file.file_name)
+    return HttpResponse(file.file_blob, content_type=mime_type)
+
+@login_required
+def file_preview(request, file_id=None):
+    folders = Folder.objects.filter(is_active=True).prefetch_related("upload_set")
+    file = None
+    headers, rows = [], []
+    preview_type, text_content, images_data = None, "", []
+
+    if file_id:
+        file = get_object_or_404(
+            Upload,
+            id=file_id,
+            folder__is_active=True,
+            document__is_deleted=False
+        )
+
+        filename = file.file_name.lower()
+
+        try:
+            if filename.endswith(".csv"):
+                content = file.file_blob.decode("utf-8")
+                reader = list(csv.reader(io.StringIO(content)))
+                if reader:
+                    headers = reader[0]
+                    rows = reader[1:]
+
+            elif filename.endswith(".xlsx"):
+                in_memory_file = io.BytesIO(file.file_blob)
+                wb = openpyxl.load_workbook(in_memory_file, data_only=True)
+                sheet = wb.active
+                data = list(sheet.iter_rows(values_only=True))
+
+                if data:
+                    headers = [str(cell) if cell is not None else "" for cell in data[0]]
+                    rows = [
+                        [str(cell) if cell is not None else "" for cell in row]
+                        for row in data[1:]
+                    ]
+
+            elif filename.endswith(".pdf"):
+                preview_type = "pdf"
+
+            elif filename.endswith(".docx"):
+                in_memory_file = io.BytesIO(file.file_blob)
+                doc = DocxDocument(in_memory_file)
+
+                text_content = "\n".join([p.text for p in doc.paragraphs if p.text.strip()])
+
+                for rel in doc.part.rels.values():
+                    if "image" in rel.reltype:
+                        image_stream = rel.target_part.blob
+                        b64 = base64.b64encode(image_stream).decode('utf-8')
+                        mime = rel.target_part.content_type
+                        images_data.append(f"data:{mime};base64,{b64}")
+
+                preview_type = "docx"
+
+            elif filename.endswith((".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp")):
+                preview_type = "image"
+
+        except Exception as e:
+            return HttpResponse(f"Error while reading file: {e}")
+
+    return render(request, "preview.html", {
+        "folders": folders,
+        "file": file,
+        "headers": headers,
+        "rows": rows,
+        "preview_type": preview_type,
+        "text_content": text_content,
+        "images_data": images_data,
     })
