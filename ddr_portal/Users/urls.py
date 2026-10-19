@@ -40,5 +40,20 @@ urlpatterns = [
     path('edit_folders/', views.edit_folders, name='edit_folders'),
     path('edit_folders/<int:folder_id>/', views.edit_folder_documents, name='edit_folder_documents'),
     path('documents/<int:document_id>/uploads/', views.uploaded_files, name='uploaded_files'),
+    # History
+    path('View History/', views.history_index, name='history_index'),
+    path('history/view/<int:file_id>/', views.history_view_file, name='history_view_file'),
+    path('history/edit/<int:file_id>/', views.history_edit_file, name='history_edit_file'),
+    path('history/save/<int:file_id>/', views.history_save_file, name='history_save_file'),
+    path('history/download/<int:file_id>/', views.history_download_file, name='history_download_file'),
+    path('history/delete/<int:file_id>/', views.history_delete_file, name='history_delete_file'),
+    path('history/restore/<int:file_id>/', views.history_restore_file, name='history_restore_file'),
 
+    # Activity Log
+    path('activity-log/', views.activity_log_view, name='activity_log'),
+
+    # File Preview
+    path('pdf/<int:file_id>/', views.view_pdf, name='view_pdf'),
+    path('view/image/<int:file_id>/', views.view_image, name='view_image'),
+    path('preview/<int:file_id>/', views.file_preview, name='file_preview'),
 ]
