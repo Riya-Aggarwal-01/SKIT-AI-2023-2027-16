@@ -1,0 +1,339 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Preview: {{ file.file_name }}</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.12.313/pdf.min.js"></script>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f5f7fa;
+      color: #333;
+    }
+
+    /* ✅ Top Bar */
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 30px;
+      background-color: #fff;
+      border-bottom: 1px solid #ddd;
+      height: 70px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    .left-side img {
+      height: 45px;
+      width: auto;
+      object-fit: contain;
+    }
+
+    .right-side {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      margin-right: 40px;
+    }
+
+    .right-side i {
+      font-size: 22px;
+      color: #333;
+      cursor: pointer;
+      transition: color 0.2s ease;
+    }
+
+    .right-side i:hover {
+      color: #003973;
+    }
+
+    /* ✅ Breadcrumbs */
+    .breadcrumbs {
+      padding: 20px 30px 0;
+      font-size: 14px;
+      color: #666;
+    }
+
+    .breadcrumbs a {
+      text-decoration: none;
+      color: #003973;
+      margin-right: 5px;
+    }
+
+    .breadcrumbs a:hover {
+      text-decoration: underline;
+    }
+
+    /* ✅ Main Content */
+    .content-section {
+      background-color: #fff;
+      margin: 30px auto 40px auto;
+      padding: 25px 30px;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+      max-width: 95%;
+    }
+
+    h2 {
+      color: #003973;
+      margin-bottom: 20px;
+      text-align: left;
+      position: sticky;
+      top: 0;
+      background: white;
+      z-index: 5;
+      padding: 10px 0;
+      border-bottom: 2px solid #f0f2f5;
+    }
+
+    .message {
+      color: #e67e22;
+      font-weight: 500;
+      margin-bottom: 10px;
+      text-align: left;
+    }
+
+    /* ✅ Scrollable Table Wrapper */
+    .table-wrapper {
+      overflow-x: auto;
+      border-radius: 10px;
+      border: 1px solid #ddd;
+      margin-top: 15px;
+    }
+
+    /* ✅ Table */
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      min-width: 800px;
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 10px 12px;
+      text-align: left;
+      font-size: 14px;
+    }
+
+    th {
+      background-color: #f0f2f5;
+      font-weight: 600;
+      position: sticky;
+      top: 60px;
+      z-index: 2;
+    }
+
+    tr:nth-child(even) {
+      background: #fafafa;
+    }
+
+    tr:hover {
+      background-color: #f1f5ff;
+    }
+
+    /* ✅ Centered Preview */
+    canvas {
+      border: 1px solid #ccc;
+      margin: 20px auto;
+      max-width: 90%;
+      display: block;
+    }
+
+    pre.docx-text {
+      background: #f9f9f9;
+      padding: 15px;
+      border-radius: 8px;
+      white-space: pre-wrap;
+      border: 1px solid #ddd;
+      font-family: "Courier New", monospace;
+      font-size: 0.95rem;
+      color: #333;
+      margin: 20px auto;
+      text-align: left;
+      max-width: 90%;
+    }
+
+    /* ✅ Back Button */
+    .back-btn {
+      display: inline-block;
+      margin-top: 25px;
+      padding: 8px 16px;
+      background: #003973;
+      color: white;
+      text-decoration: none;
+      border-radius: 6px;
+      transition: background 0.2s;
+    }
+
+    .back-btn:hover {
+      background: #00509e;
+    }
+
+    /* ✅ Smooth scrollbar */
+    ::-webkit-scrollbar {
+      height: 8px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #b0b0b0;
+      border-radius: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #888;
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- ✅ Top Bar -->
+  <div class="top-bar">
+    <div class="left-side">
+      <img src="{% static 'images/skit_logo.jpg' %}" alt="Logo">
+    </div>
+    <div class="right-side">
+      <i class="bi bi-house-door" onclick="location.href='{% url 'role_redirect' %}'"></i>
+      <i class="bi bi-person-circle" onclick="location.href='{% url 'profile' %}'"></i>
+    </div>
+  </div>
+
+  <!-- ✅ Breadcrumbs -->
+  <div class="breadcrumbs">
+    {% if role_id == 1 %}
+      <a href="{% url 'admin' %}">Dashboard</a> >
+    {% elif role_id == 2 %}
+      <a href="{% url 'head' %}">Dashboard</a> >
+    {% elif role_id == 3 %}
+      <a href="{% url 'faculty' %}">Dashboard</a> >
+    {% endif %}
+    <span>Preview: {{ file.file_name }}</span>
+  </div>
+
+  <!-- ✅ Content Section -->
+  <div class="content-section">
+    <h2>Preview of {{ file.file_name }}</h2>
+
+    {% if message %}
+      <p class="message">{{ message }}</p>
+    {% endif %}
+
+    {% if preview_type == "pdf" %}
+      <canvas id="pdf-canvas"></canvas>
+      <script>
+        const url = "{% url 'view_pdf' file.id %}";
+        const canvas = document.getElementById('pdf-canvas');
+        const ctx = canvas.getContext('2d');
+        pdfjsLib.getDocument(url).promise.then(pdf => {
+          pdf.getPage(1).then(page => {
+            const viewport = page.getViewport({ scale: 1.2 });
+            canvas.width = viewport.width;
+            canvas.height = viewport.height;
+            page.render({ canvasContext: ctx, viewport: viewport });
+          });
+        });
+      </script>
+
+    {% elif preview_type == "image" %}
+      <canvas id="image-canvas"></canvas>
+      <script>
+        const canvas = document.getElementById('image-canvas');
+        const ctx = canvas.getContext('2d');
+        const img = new Image();
+        img.src = "{% url 'view_image' file.id %}";
+        img.onload = () => {
+          canvas.width = img.width;
+          canvas.height = img.height;
+          ctx.drawImage(img, 0, 0);
+        };
+      </script>
+
+    {% elif preview_type == "docx" %}
+      <canvas id="docx-canvas"></canvas>
+      <script>
+        const canvas = document.getElementById('docx-canvas');
+        const ctx = canvas.getContext('2d');
+        const lineHeight = 24;
+        const margin = 20;
+        const fontSize = 16;
+        const fontFamily = "Segoe UI";
+
+        ctx.font = fontSize + "px " + fontFamily;
+        ctx.fillStyle = "#000";
+
+        const textLines = {{ text_content|escapejs }}.split('\n');
+        let y = margin;
+        let canvasWidth = 800;
+        let canvasHeight = margin * 2 + textLines.length * lineHeight;
+
+        const images = {{ images_data|safe }};
+        const imageObjects = [];
+        let loadedImages = 0;
+
+        images.forEach(src => {
+          const img = new Image();
+          img.src = src;
+          img.onload = () => {
+            imageObjects.push(img);
+            canvasHeight += img.height + 10;
+            loadedImages++;
+            if (loadedImages === images.length) drawCanvas();
+          };
+        });
+
+        if (images.length === 0) drawCanvas();
+
+        function drawCanvas() {
+          canvas.width = canvasWidth;
+          canvas.height = canvasHeight;
+          ctx.fillStyle = "#000";
+          ctx.font = fontSize + "px " + fontFamily;
+          y = margin;
+
+          textLines.forEach(line => {
+            ctx.fillText(line, margin, y);
+            y += lineHeight;
+          });
+
+          imageObjects.forEach(img => {
+            ctx.drawImage(img, margin, y);
+            y += img.height + 10;
+          });
+        }
+      </script>
+
+    {% elif headers %}
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              {% for header in headers %}
+                <th>{{ header }}</th>
+              {% endfor %}
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in rows %}
+              <tr>
+                {% for col in row %}
+                  <td>{{ col }}</td>
+                {% endfor %}
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+    {% else %}
+      <p>No data to preview.</p>
+    {% endif %}
+
+    <a href="{% url 'history_index' %}" class="back-btn">← Back to History View</a>
+  </div>
+</body>
+</html>

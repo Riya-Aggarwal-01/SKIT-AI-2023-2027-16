@@ -1,10 +1,14 @@
+{% load custom_tags %}
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Select a Folder to Upload</title>
+  <title>Uploaded Files - {{ document.title }}</title>
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
   <style>
     body {
       margin: 0;
@@ -12,7 +16,6 @@
       background-color: #f7f9fc;
     }
 
-    /* Top Bar */
     .top-bar {
       display: flex;
       align-items: center;
@@ -35,6 +38,7 @@
       height: 48px;
       border-radius: 50%;
       background-color: #eee;
+      overflow: hidden;
     }
 
     .logo-placeholder img {
@@ -65,7 +69,6 @@
       cursor: pointer;
     }
 
-    /* Breadcrumbs */
     .breadcrumbs {
       padding: 20px 30px 0;
       font-size: 14px;
@@ -82,42 +85,52 @@
       text-decoration: underline;
     }
 
-    /* Folder Section Styling (same as first page) */
-    .folder-section {
+    .content-section {
       background-color: #fff;
-      margin: 30px 300px 40px 300px;
+      margin: 30px auto 40px auto;
       padding: 25px;
       border-radius: 12px;
       box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+      max-width: 95%;
     }
 
-    .folder-section h2 {
-      font-size: 18px;
-      margin-bottom: 20px;
+    h2 {
       color: #003973;
+      margin-bottom: 20px;
     }
 
-    .folder {
-      background-color: #f0f4ff;
-      padding: 14px;
-      border-radius: 8px;
-      margin-bottom: 12px;
-      font-size: 16px;
-      color: #333;
+    #filesTable tbody tr {
+      transition: background-color 0.2s ease;
+    }
+
+    #filesTable tbody tr:hover {
+      background-color: #f1f5ff !important;
       cursor: pointer;
-      transition: background 0.2s;
-      text-decoration: none;
-      display: block;
     }
 
-    .folder:hover {
-      background-color: #d9e8ff;
-    }
-
-    .hidden {
-      display: none;
+    .btn-sm {
+      padding: 4px 10px;
+      border-radius: 6px;
     }
   </style>
+  <script>
+    $(document).ready(function () {
+      var table = $('#filesTable').DataTable();
+
+      // Search functionality
+      $('#fileSearch').on('keyup', function() {
+        table.search(this.value).draw();
+      });
+
+      // Row click to preview file
+      $('#filesTable tbody').on('click', 'tr', function (e) {
+        if (!$(e.target).is('a, button, i')) {
+          var previewUrl = $(this).data('preview-url');
+          if (previewUrl) window.location.href = previewUrl;
+        }
+      });
+    });
+  </script>
 </head>
 <body>
 
@@ -128,11 +141,9 @@
         <img src="{% static 'images/skit_logo.jpg' %}" alt="Logo">
       </div>
       <div class="search-box">
-        <input type="text" id="folderSearch" placeholder="Search folders..." onkeyup="filterFolders()">
+        <input type="text" id="fileSearch" placeholder="Search files...">
       </div>
     </div>
-
-
     <div class="right-side">
       <i class="bi bi-house-door" onclick="location.href='{% url 'role_redirect' %}'"></i>
       <i class="bi bi-person-circle" onclick="location.href='{% url 'profile' %}'"></i>
@@ -142,39 +153,40 @@
   <!-- Breadcrumbs -->
   <div class="breadcrumbs">
     <a href="{% url 'role_redirect' %}">Dashboard</a> >
-    <span>Upload</span>
+    <a href="{% url 'folder_list' %}">Folders</a> >
+    <span>Uploaded Files for {{ document.title }}</span>
   </div>
 
-  <!-- Main Content -->
-  <div class="folder-section">
-    <h2>Select a Folder to Upload</h2>
+  <!-- Content Section -->
+  <div class="content-section">
+    <h2>📂 Uploaded Files for: <span class="fw-semibold">{{ document.title }}</span></h2>
 
-    {% if folders %}
-      <div id="folderContainer">
-        {% for folder in folders %}
-          <a class="folder" data-folder-name="{{ folder.folder_name|lower }}" href="{% url 'upload_document_list' folder.id %}">
-            📁 {{ folder.folder_name }}
-          </a>
+    {% if files %}
+    <table id="filesTable" class="display table table-striped">
+      <thead>
+        <tr>
+          <th>File Name</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for file in files %}
+        <tr data-preview-url="{% url 'file_preview' file.id %}">
+          <td>{{ file.file_name }}</td>
+          <td>
+            <a href="{% url 'file_preview' file.id %}" class="btn btn-sm btn-secondary">👁 View</a>
+            <a href="{% url 'history_download_file' file.id %}" class="btn btn-sm btn-success">⬇ Download</a>
+          </td>
+        </tr>
         {% endfor %}
-      </div>
+      </tbody>
+    </table>
     {% else %}
-      <div class="folder">No folders available.</div>
+      <p class="text-warning">⚠ No files uploaded for this document.</p>
     {% endif %}
+
+    <a href="{% url 'folder_list' %}" class="btn btn-link mt-3">← Back to Folders</a>
   </div>
-
-  <!-- Search Filter Script -->
-  <script>
-    function filterFolders() {
-      const input = document.getElementById('folderSearch');
-      const filter = input.value.toLowerCase();
-      const folders = document.querySelectorAll('#folderContainer .folder');
-
-      folders.forEach(folder => {
-        const folderName = folder.getAttribute('data-folder-name');
-        folder.style.display = folderName.includes(filter) ? '' : 'none';
-      });
-    }
-  </script>
 
 </body>
 </html>

@@ -48,11 +48,8 @@ urlpatterns = [
     path('history/download/<int:file_id>/', views.history_download_file, name='history_download_file'),
     path('history/delete/<int:file_id>/', views.history_delete_file, name='history_delete_file'),
     path('history/restore/<int:file_id>/', views.history_restore_file, name='history_restore_file'),
-
-    # Activity Log
+    path('profile/', views.profile_view, name='profile'),
     path('activity-log/', views.activity_log_view, name='activity_log'),
-
-    # File Preview
     path('pdf/<int:file_id>/', views.view_pdf, name='view_pdf'),
     path('view/image/<int:file_id>/', views.view_image, name='view_image'),
     path('preview/<int:file_id>/', views.file_preview, name='file_preview'),
