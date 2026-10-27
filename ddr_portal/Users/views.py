@@ -1122,16 +1122,6 @@ def history_restore_file(request, file_id):
     )
     return redirect('history_index')
 
-def uploaded_files(request, document_id):
-    document = get_object_or_404(Document, id=document_id)
-    files = Upload.objects.filter(document=document, is_deleted=False)
-
-    return render(request, 'uploaded_files.html', {
-        'document': document,
-        'files': files
-    })
-# views.py
-
 @login_required
 def view_image(request, file_id):
     file = get_object_or_404(Upload, id=file_id)
@@ -1208,4 +1198,20 @@ def file_preview(request, file_id=None):
         "preview_type": preview_type,
         "text_content": text_content,
         "images_data": images_data,
+    })
+@login_required
+def profile_view(request):
+    user = request.user
+
+    try:
+        user_role = UserRole.objects.select_related('role').get(user=user)
+        role_name = user_role.role.role_name
+    except UserRole.DoesNotExist:
+        role_name = 'Not Assigned'
+
+    return render(request, 'profile.html', {
+        'name': user.get_full_name() or user.username,
+        'email': user.email,
+        'phone': 'Not Available',  # or customize if needed
+        'role': role_name,
     })
