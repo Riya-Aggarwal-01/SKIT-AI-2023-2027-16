@@ -1829,3 +1829,25 @@ CREATE TABLE FOLDER_USER_ROLE (
     CONSTRAINT UQ_user_folder UNIQUE (user_id, folder_id, file_id)
 );
 GO
+
+-- Create PERMISSIONS table
+CREATE TABLE PERMISSIONS (
+    prm_id INT IDENTITY(1,1) PRIMARY KEY,
+    prm_name VARCHAR(50),
+    prm_codename VARCHAR(50) UNIQUE NOT NULL,
+    prm_description VARCHAR(MAX)
+);
+GO
+INSERT INTO PERMISSIONS (prm_name, prm_codename, prm_description) VALUES
+('Create New Folder', 'A001', 'Capability to establish new organizational folders for content.'),
+('Permission Change', 'A002', 'Manage and modify user permissions across the portal.'),
+('Delete Folders', 'A003', 'To remove unutilized folders'),
+('Access Folders', 'H001', 'Admins have the ability to view and manage all existing folders within the portal.'),
+('View Actions', 'H002', 'Monitor activities and changes made within their purview.'),
+('Add Column', 'H003', 'Similar to Admin, Heads might have the ability to add columns within their specific categories.'),
+('Delete Column', 'H004', 'Similar to Admin, Heads might have the ability to add columns within their specific categories.'),
+('Upload Files', 'F001', 'Faculty members can upload documents to the portal.'),
+('View History', 'F002', 'Access a record of their past uploads and activities.'),
+('Retrieve Files', 'F003', 'Download or access files they have previously uploaded.'),
+('Update Files', 'F004', 'Modify or replace existing files.');
+GO
